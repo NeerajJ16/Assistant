@@ -18,10 +18,167 @@ from groq import Groq
 # =========================================================
 
 st.set_page_config(
-    page_title="Neeraj Portfolio Assistant",
+    page_title="Neeraj AI Portfolio Assistant",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# =========================================================
+# CUSTOM CSS
+# =========================================================
+
+st.markdown("""
+<style>
+
+/* =========================================================
+ROOT
+========================================================= */
+
+:root {
+    --color-primary: #fd4520;
+    --color-secondary: #f4f5f6;
+    --color-tertiary: #0d1013;
+    --color-gray: #f6f6f6;
+    --background-color-1: linear-gradient(145deg, #1e2024, #23272b);
+    --background-color-2: #212428;
+    --shadow-1: 10px 10px 19px #1c1e22,
+                -10px -10px 19px #262a2e;
+    --shadow-2: inset 21px 21px 19px #181a1d,
+                inset -21px -21px 19px #202225;
+    --color-heading: #ffffff;
+    --color-body: #878e99;
+}
+
+/* =========================================================
+APP
+========================================================= */
+
+.stApp {
+    background: #0d1013;
+    color: white;
+}
+
+/* =========================================================
+MAIN CONTAINER
+========================================================= */
+
+.block-container {
+    max-width: 1150px;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* =========================================================
+SIDEBAR
+========================================================= */
+
+section[data-testid="stSidebar"] {
+    background: #181a1d;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* =========================================================
+TITLE
+========================================================= */
+
+.main-title {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1.2;
+}
+
+.highlight {
+    color: #fd4520;
+}
+
+/* =========================================================
+HERO CARD
+========================================================= */
+
+.hero-card {
+    background: rgba(255,255,255,0.03);
+    padding: 35px;
+    border-radius: 30px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+CHAT MESSAGES
+========================================================= */
+
+[data-testid="stChatMessage"] {
+    background: #212428;
+    border-radius: 20px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-1);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* USER MESSAGE */
+
+[data-testid="stChatMessage"]:has(div[data-testid="chatAvatarIcon-user"]) {
+    background: linear-gradient(145deg, #f95230, #fb2c02);
+}
+
+/* =========================================================
+CHAT INPUT
+========================================================= */
+
+.stChatInputContainer {
+    background: #1e2024;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: var(--shadow-1);
+}
+
+/* =========================================================
+BUTTONS
+========================================================= */
+
+.stButton button {
+    background: linear-gradient(145deg, #f95230, #fb2c02);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.stButton button:hover {
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+METRIC CARDS
+========================================================= */
+
+[data-testid="metric-container"] {
+    background: #212428;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: var(--shadow-1);
+}
+
+/* =========================================================
+SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #fd4520;
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # LOAD ENV
@@ -32,7 +189,7 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
-    st.error("Missing GROQ_API_KEY in .env")
+    st.error("Missing GROQ_API_KEY")
     st.stop()
 
 # =========================================================
@@ -110,59 +267,15 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # =========================================================
-# QUERY REWRITE PROMPT
-# =========================================================
-
-REWRITE_PROMPT = """
-You are a query rewriting assistant for a RAG system.
-
-Given the conversation history and follow-up question,
-rewrite the question into a standalone semantic search query.
-
-Rules:
-- Preserve original meaning
-- Expand ambiguous references
-- Keep technical terms
-- Keep concise
-- Do NOT answer the question
-
-CHAT HISTORY:
-{history}
-
-FOLLOW-UP QUESTION:
-{question}
-
-STANDALONE SEARCH QUERY:
-"""
-
-# =========================================================
-# FINAL PROMPT
+# PROMPT
 # =========================================================
 
 PROMPT_TEMPLATE = """
-You are an AI assistant representing Neeraj's
-portfolio, resume, projects, research, skills,
-and professional experience.
+You are Neeraj's AI Portfolio Assistant.
 
-Your task is to answer interview questions
-using the provided context.
+Answer professionally and naturally.
 
-STRICT STYLE RULES:
-- Answer in a SINGLE, cohesive, and professional paragraph.
-- DO NOT use bullet points, lists, or numbered sequences.
-- Speak in the first person ("I am...", "I worked on...") as Neeraj's representative.
-- Flow naturally from one point to the next using transitions.
-- Provide COMPLETE and detailed information from the context.
-- NEVER leave a sentence or information incomplete. Ensure the paragraph reaches a logical conclusion.
-- ALWAYS include relevant links (e.g., GitHub, Demo) for projects if they exist in the context.
-- Sound like a real person during an interview, not a robot or a list generator.
-
-STRICT CONTENT RULES:
-- Answer ONLY using context.
-- Do NOT hallucinate or make up experience.
-- When asked about experience or education, present them chronologically (newest first) within the paragraph.
-- If information is unavailable say:
-  "I don't have enough information about that in Neeraj's portfolio."
+Use ONLY the provided context.
 
 CONTEXT:
 {context}
@@ -174,54 +287,10 @@ ANSWER:
 """
 
 # =========================================================
-# QUERY REWRITER
-# =========================================================
-
-def rewrite_query(query):
-
-    if not st.session_state.chat_history:
-        return query
-
-    history_text = "\n".join([
-        f"User: {c['user']}\nAssistant: {c['assistant']}"
-        for c in st.session_state.chat_history[-3:]
-    ])
-
-    try:
-        response = client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=[
-                {
-                    "role": "user",
-                    "content": REWRITE_PROMPT.format(
-                        history=history_text,
-                        question=query
-                    )
-                }
-            ],
-            temperature=0,
-            max_tokens=100
-        )
-
-        rewritten = response.choices[0].message.content.strip()
-        
-        # Fallback if empty or failed
-        if not rewritten or len(rewritten) < 3:
-            return query
-            
-        return rewritten
-    except Exception:
-        return query
-
-# =========================================================
 # RETRIEVAL
 # =========================================================
 
 def retrieve_context(query):
-
-    # =====================================================
-    # EMBED QUERY
-    # =====================================================
 
     query_embedding = embed_model.encode(
         [query],
@@ -230,233 +299,24 @@ def retrieve_context(query):
 
     faiss.normalize_L2(query_embedding)
 
-    # =====================================================
-    # SEARCH
-    # =====================================================
-
     scores, indices = index.search(
         query_embedding,
         TOP_K_RETRIEVE
     )
 
-    query_lower = query.lower()
-
-    retrieved_chunks = []
-
-    preferred_types = []
-
-    # =====================================================
-    # QUERY INTENT DETECTION (Improved)
-    # =====================================================
-    
-    # We check for presence of any of these keywords
-    exp_keywords = ["experience", "work", "job", "career", "employment", "internship", "role"]
-    edu_keywords = ["education", "degree", "college", "university", "study", "studied", "masters", "bachelors"]
-    skill_keywords = ["skill", "skills", "technology", "tech stack", "tools", "languages", "databases"]
-    proj_keywords = ["project", "projects", "portfolio", "built", "developed"]
-    res_keywords = ["research", "paper", "publication", "initiative", "initiatives"]
-    cert_keywords = ["certification", "certifications", "certificate"]
-
-    if any(k in query_lower for k in exp_keywords):
-        preferred_types.append("experience")
-
-    if any(k in query_lower for k in edu_keywords):
-        preferred_types.append("education")
-
-    if any(k in query_lower for k in skill_keywords):
-        preferred_types.append("skill")
-
-    if any(k in query_lower for k in proj_keywords):
-        preferred_types.append("project")
-
-    if any(k in query_lower for k in res_keywords):
-        preferred_types.append("research")
-
-    if any(k in query_lower for k in cert_keywords):
-        preferred_types.append("certification")
-
-    # =====================================================
-    # BUILD RETRIEVED CHUNKS
-    # =====================================================
+    retrieved = []
 
     for idx in indices[0]:
 
         if idx == -1:
             continue
 
-        chunk = metadata[idx]
+        retrieved.append(metadata[idx])
 
-        boost = 0
-
-        # =================================================
-        # STRONG TYPE BOOST
-        # =================================================
-
-        if chunk["chunk_type"] in preferred_types:
-            boost += 1000
-
-        # =================================================
-        # RECENCY BOOST
-        # =================================================
-
-        if (
-            "recent" in query_lower or
-            "latest" in query_lower or
-            "current" in query_lower
-        ):
-
-            if chunk["chunk_type"] == "experience":
-
-                boost += 500
-
-                date_value = str(
-                    chunk.get(
-                        "metadata",
-                        {}
-                    ).get("date", "")
-                )
-
-                if "2025" in date_value:
-                    boost += 300
-
-                elif "2024" in date_value:
-                    boost += 200
-
-                elif "2023" in date_value:
-                    boost += 100
-
-        # =================================================
-        # TITLE BOOST
-        # =================================================
-
-        title_lower = chunk["title"].lower()
-
-        for word in query_lower.split():
-
-            if word in title_lower:
-                boost += 50
-
-        chunk["_boost"] = boost
-
-        retrieved_chunks.append(chunk)
-
-    # =====================================================
-    # BOOST SORT
-    # =====================================================
-
-    retrieved_chunks = sorted(
-        retrieved_chunks,
-        key=lambda x: x["_boost"],
-        reverse=True
-    )
-
-    # =====================================================
-    # RERANK INPUT
-    # =====================================================
-
-    pairs = []
-
-    for chunk in retrieved_chunks:
-
-        rerank_text = f"""
-        Chunk Type:
-        {chunk['chunk_type']}
-
-        Title:
-        {chunk['title']}
-
-        Content:
-        {chunk['text']}
-        """
-
-        pairs.append(
-            (query, rerank_text)
-        )
-
-    # =====================================================
-    # RERANK
-    # =====================================================
-
-    rerank_scores = reranker.predict(
-        pairs
-    )
-
-    # =====================================================
-    # COMBINE SCORES
-    # =====================================================
-
-    results = []
-
-    for chunk, score in zip(
-        retrieved_chunks,
-        rerank_scores
-    ):
-
-        final_score = (
-            float(score) +
-            chunk["_boost"]
-        )
-
-        results.append({
-            "score": final_score,
-            "title": chunk["title"],
-            "chunk_type": chunk["chunk_type"],
-            "text": chunk["text"],
-            "metadata": chunk.get(
-                "metadata",
-                {}
-            )
-        })
-
-    # =====================================================
-    # FINAL SORT
-    # =====================================================
-
-    def get_date_score(item):
-        date_str = str(item.get("metadata", {}).get("date", "")).lower()
-        if "present" in date_str:
-            return 2026
-        import re
-        match = re.search(r"20\d{2}", date_str)
-        if match:
-            return int(match.group())
-        return 0
-
-    results = sorted(
-        results,
-        key=lambda x: x["score"],
-        reverse=True
-    )
-
-    # If it's a general experience/education query, keep top results but sort 
-    # them chronologically for the LLM.
-    if any(t in preferred_types for t in ["experience", "education"]):
-        top_n = results[:TOP_K_FINAL]
-        results = sorted(top_n, key=get_date_score, reverse=True)
-    else:
-        results = results[:TOP_K_FINAL]
-
-    # =====================================================
-    # DEDUPLICATION
-    # =====================================================
-
-    unique_results = []
-
-    seen_titles = set()
-
-    for item in results:
-
-        if item["title"] in seen_titles:
-            continue
-
-        seen_titles.add(item["title"])
-
-        unique_results.append(item)
-
-    return unique_results[:TOP_K_FINAL]
+    return retrieved[:TOP_K_FINAL]
 
 # =========================================================
-# BUILD CONTEXT
+# CONTEXT BUILDER
 # =========================================================
 
 def build_context(results):
@@ -465,23 +325,15 @@ def build_context(results):
 
     for result in results:
 
-        metadata_text = json.dumps(
-            result.get("metadata", {}),
-            indent=2
-        )
-
         text = f"""
-CHUNK TYPE:
-{result['chunk_type']}
-
 TITLE:
 {result['title']}
 
+TYPE:
+{result['chunk_type']}
+
 CONTENT:
 {result['text']}
-
-METADATA:
-{metadata_text}
 """
 
         context_parts.append(text)
@@ -494,17 +346,9 @@ METADATA:
 
 def generate_answer(query):
 
-    standalone_query = rewrite_query(
-        query
-    )
+    retrieved = retrieve_context(query)
 
-    retrieved = retrieve_context(
-        standalone_query
-    )
-
-    context = build_context(
-        retrieved
-    )
+    context = build_context(retrieved)
 
     final_prompt = PROMPT_TEMPLATE.format(
         context=context,
@@ -516,9 +360,7 @@ def generate_answer(query):
         messages=[
             {
                 "role": "system",
-                "content": (
-                    "You are a grounded RAG assistant."
-                )
+                "content": "You are a grounded portfolio assistant."
             },
             {
                 "role": "user",
@@ -526,7 +368,7 @@ def generate_answer(query):
             }
         ],
         temperature=0.2,
-        max_tokens=850,
+        max_tokens=500,
         stream=True
     )
 
@@ -536,33 +378,68 @@ def generate_answer(query):
 # SIDEBAR
 # =========================================================
 
-    # with st.sidebar:
+with st.sidebar:
 
-    #     st.title("👨‍💻 Neeraj AI Assistant")
+    st.markdown("""
+    # 🤖 Neeraj AI Assistant
 
-    #     st.markdown("""
-    # Ask about:
-    # - Projects
-    # - Experience
-    # - Skills
-    # - Education
-    # - Research
-    # - AI work
-    # - Cloud technologies
-    # - Certifications
-    # """)
+    AI-powered portfolio assistant built using:
+    - FAISS
+    - Sentence Transformers
+    - Cross Encoder Reranking
+    - Groq LLM
+    - Streamlit
+    """)
 
-    #     st.divider()
+    st.divider()
 
-    #     if st.button("🗑️ Clear Chat"):
-    #         st.session_state.chat_history = []
-    #         st.rerun()
+    if st.button("🗑️ Clear Chat"):
+        st.session_state.chat_history = []
+        st.rerun()
 
 # =========================================================
-# MAIN UI
+# HERO SECTION
 # =========================================================
 
-st.title("🤖 Neeraj Portfolio Assistant")
+st.markdown("""
+<div class="hero-card">
+
+<div class="main-title">
+Neeraj <span class="highlight">AI Portfolio Assistant</span>
+</div>
+
+<br>
+
+<p style="
+color:#878e99;
+font-size:18px;
+line-height:1.8;
+">
+Ask anything about projects, AI systems,
+cloud engineering, research, certifications,
+skills, and professional experience.
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+# =========================================================
+# METRICS
+# =========================================================
+
+col1, col2, col3 = st.columns(3)
+
+col1.metric("Projects", "15+")
+
+col2.metric("AI Stack", "RAG + LLM")
+
+col3.metric("Experience", "3+ Years")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# =========================================================
+# CHAT HISTORY
+# =========================================================
 
 for chat in st.session_state.chat_history:
 
@@ -572,22 +449,22 @@ for chat in st.session_state.chat_history:
     with st.chat_message("assistant"):
         st.markdown(chat["assistant"])
 
+# =========================================================
+# INPUT
+# =========================================================
+
 query = st.chat_input(
     "Ask interview question..."
 )
 
-if query:
+# =========================================================
+# CHAT FLOW
+# =========================================================
 
-    # =====================================================
-    # USER MESSAGE
-    # =====================================================
+if query:
 
     with st.chat_message("user"):
         st.markdown(query)
-
-    # =====================================================
-    # ASSISTANT
-    # =====================================================
 
     with st.chat_message("assistant"):
 
@@ -610,7 +487,9 @@ if query:
                     full_response += delta
 
                     response_placeholder.markdown(
-                        full_response + "▌"
+                        full_response +
+                        " <span style='color:#fd4520'>▌</span>",
+                        unsafe_allow_html=True
                     )
 
         response_placeholder.markdown(
@@ -621,9 +500,46 @@ if query:
         # SOURCES
         # =================================================
 
+        with st.expander("📚 Retrieved Sources"):
+
+            for item in retrieved:
+
+                st.markdown(f"""
+                <div style="
+                    background:#1e2024;
+                    padding:20px;
+                    border-radius:20px;
+                    margin-bottom:15px;
+                    box-shadow: 10px 10px 19px #1c1e22,
+                                -10px -10px 19px #262a2e;
+                ">
+
+                <h4 style="
+                    color:#fd4520;
+                    margin-bottom:10px;
+                ">
+                    {item['title']}
+                </h4>
+
+                <p style="
+                    color:#878e99;
+                    margin-bottom:10px;
+                ">
+                    {item['chunk_type']}
+                </p>
+
+                <p style="
+                    color:white;
+                    line-height:1.7;
+                ">
+                    {item['text'][:300]}...
+                </p>
+
+                </div>
+                """, unsafe_allow_html=True)
 
     # =====================================================
-    # SAVE HISTORY
+    # SAVE CHAT
     # =====================================================
 
     st.session_state.chat_history.append({
