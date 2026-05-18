@@ -526,7 +526,7 @@ def generate_answer(query):
             }
         ],
         temperature=0.2,
-        max_tokens=500,
+        max_tokens=850,
         stream=True
     )
 
