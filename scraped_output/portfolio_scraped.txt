@@ -1,0 +1,238 @@
+
+============================================================
+ABOUT
+============================================================
+Name: Neeraj J
+Bio: I'm a data engineer, software developer, and tech enthusiast with a Master’s in Data Science from Florida State University, passionate about bridging the gap between raw data and actionable insights. With expertise in machine learning, web development, data analytics, Python, SQL, AWS, and AI-powered solutions, I thrive on solving complex problems and building scalable, impactful applications. Beyond tech, I express creativity through cooking, dance, poetry, and shayaris, believing that the best innovations come from blending analytical thinking with artistic intuition. I enjoy working on big data processing, cloud computing, and predictive modeling to drive intelligent decision-making. Let’s connect and create something extraordinary! 🚀
+Tagline: AI Enthusiast
+Social links:
+  http://www.linkedin.com/in/neeraj-mukesh-jawahirani-33a8363ab: http://www.linkedin.com/in/neeraj-mukesh-jawahirani-33a8363ab
+  https://github.com/neerajJ16: https://github.com/neerajJ16
+  https://neerajjawahirani.medium.com/: https://neerajjawahirani.medium.com/
+  https://instagram.com/neeraj_jawahirani_: https://instagram.com/neeraj_jawahirani_
+
+============================================================
+SKILLS
+============================================================
+💻 Languages: C, C++, Java, Advanced Java, Python (NumPy, Pandas, Matplotlib, Plotly, Seaborn), R, PHP
+🗄️ Databases: SQL, PostgreSQL, SQLite, MongoDB, NoSQL, Amazon RDS, Hadoop, Snowflake
+⚙️ Data Engineering & Pipelines: Airflow, Spark, DBT, REST APIs, Docker, Data Validation, CI/CD, A/B Testing
+📊 Data Visualization & BI: Power BI, Tableau, Looker Studio, Matplotlib, Seaborn, Plotly
+🤖 Machine Learning & AI: Scikit-learn, XGBoost, TensorFlow, PyTorch, NLTK, OpenCV, LangChain, NLP, LLMs, Generative AI
+☁️ Tools & Cloud: AWS (S3, Redshift, RDS), Microsoft Azure, Docker, GitHub, Bitbucket, Excel
+🔧 Analytics & Experimentation: A/B Testing, Hypothesis Testing, Statistical Modeling, KPI Development & Tracking, Trend Analysis, User Behavior Analysis, Feature Analysis, Exploratory Data Analysis (EDA)
+🐋 Data Governance: Schema Management, Data Quality Validation, Data Lineage & Documentation, Role-Based Access Control (RBAC), Data Freshness Monitoring, Controlled Data Access
+
+============================================================
+EXPERIENCE
+============================================================
+
+September 2024 – Present
+  Role:    Center for Ocean and Atmospheric Prediction Studies
+  Company: Information Assistant & Writer — Tallahassee, Florida
+  Details: At the Center for Ocean-Atmospheric Prediction Studies (COAPS) at Florida State University, I work as an Information Assistant and Data Analyst where I optimize data systems supporting oceanographic research. I redesigned vessel-position mapping workflows using SQL and Apache Spark, reducing query latency from several minutes to under 30 seconds. I also built automated ETL pipelines to process over 50,000 marine vessel records daily and supported multiple research web applications by containerizing services with Docker and improving data retrieval performance. My work helps scientists access reliable data and visualization tools for ongoing research.
+
+January 2022 – July 2023
+  Role:    Datamorphosis
+  Company: Data Engineer — Pune, India
+  Details: At Datamorphosis, I worked as a Data Engineer building scalable data pipelines and analytics infrastructure. I developed PySpark ETL pipelines that ingested and transformed more than 500K records per processing cycle into AWS S3 and Snowflake, enabling efficient data storage and analysis. I orchestrated workflows using Apache Airflow, integrated AWS Glue transformations, and implemented Delta Lake for versioned data storage. Additionally, I supported experimentation workflows by modeling datasets in dbt and delivering insights through Tableau dashboards, while enforcing data governance with schema validation, RBAC policies, and CI/CD pipelines.
+
+May 2021 – December 2021
+  Role:    Geniobits Private LTD
+  Company: Data Analyst and Team Lead Intern — Pune, India
+  Details: During my internship at Geniobits, I worked as a Data Analyst and Team Lead Intern focusing on educational analytics. I analyzed datasets of over 10,000 student records using PostgreSQL and exploratory data analysis techniques to identify students at risk academically. I developed Power BI dashboards with DAX to provide instructors with real-time insights into student performance and key academic KPIs. I also built a predictive model using PyTorch and statistical analysis in R that achieved an F1 score of 0.82, helping educators identify students who needed early academic intervention.
+
+============================================================
+EDUCATION
+============================================================
+
+August 2023 – May 2025
+  Degree:  Masters of Science in Data Science – Computer Science
+  School:  Florida State University, Tallahassee, FL, United States
+  Details: 
+
+June 2018 – May 2022
+  Degree:  Bachelors of Engineering in Information Technology
+  School:  Savitribai Phule Pune University, Pune, MH, India
+  Details: 
+
+============================================================
+CERTIFICATIONS
+============================================================
+  - Data Engineer – Data Integration by IBM-Techademy
+  - Software Development and Life Cycle by IBM-Techademy
+  - Cloud Computing with AWS
+  - Data Science: R Programming Complete Diploma 2023
+  - Web Penetration Testing
+  - Database Management with SQL
+
+============================================================
+LEADERSHIP
+============================================================
+
+2024 – Present
+  Role:    Community Leader & Mentor
+  Org:     FSU Data Science Community
+  Details: Led workshops, mentored peers, and organized data science events at Florida State University, fostering a community of learners and practitioners.
+
+============================================================
+RESEARCHES & INITIATIVES
+============================================================
+
+Florida State University – AI Researcher
+  Worked with large language models, fine-tuning models like DistilGPT2 on datasets of 50,000+ examples using LoRA and PEFT, achieving 10–15% improvements in task accuracy. Built scalable NLP pipelines with Hugging Face and PyTorch, applying mixed-precision training and batch optimizations to reduce training time by 35%. Contributed to ParticleViz, an open-source tool that visualizes Lagrangian particle simulations through interactive web maps for Earth Science researchers.
+
+LearnScape AI – Founder and Developer
+  Developed LearnScape AI, an intelligent learning platform that generates personalized study roadmaps, quizzes, and flashcards using Retrieval-Augmented Generation (RAG) and LLM-based evaluation pipelines. Built a scalable backend using FastAPI, dbt, and PostgreSQL for knowledge retrieval and progress tracking. Applied fine-tuned LLMs and semantic search to improve content generation, knowledge evaluation, and overall learning adaptability.
+
+============================================================
+FEATURED PROJECTS (HOMEPAGE)
+============================================================
+
+============================================================
+EXTRA CURRICULARS
+============================================================
+  🎙️ Host & Organizer at Gadget Gyaan: Hosted and organized tech events educating audiences about gadgets and technology.
+  🎤 Speaker – Personality Development: Delivered speeches on personal growth and confidence building for students.
+  📚 Teaching Assistant – Government School: Volunteered as a teaching assistant, mentoring underprivileged students in STEM subjects.
+
+============================================================
+CONTACT
+============================================================
+Neeraj J | 
+  +1 (850) 300-3851: tel:+1 (850) 300-3851
+  neerajjawahirani@gmail.com: mailto:neerajjawahirani@gmail.com
+  jawahiranineeraj16@gmail.com: mailto:jawahiranineeraj16@gmail.com
+
+============================================================
+ALL PROJECTS (ARCHIVES)
+============================================================
+
+Project: LearnScape AI
+  Stack: FastAPI, Python, dbt, Postgres, RAG, LLM
+  Description: Generates personalized learning paths with quizzes, flashcards, and mind-maps using RAG and analytics.
+  Link [Demo]: https://learnscapeai.com/
+  Link [GitHub]: https://github.com/NeerajJ16/LearnScapeAI
+
+Project: InterviewIQ-AI Powered Interview Stimulator
+  Stack: Python, LLM, Streamlit
+  Description: AI-powered interview coach with memory-enabled context retention, simulating realistic interview sessions that evaluate responses, generate structured feedback, and produce a final performance score.
+  Link [GitHub]: https://github.com/NeerajJ16/Ai-Powered-Interview-Coach
+
+Project: ParticleViz
+  Stack: Python, NetCDF, OceanParcels, WebGL
+  Description: Visualizes millions of ocean particles on interactive maps for Earth-science research with NetCDF loaders.
+  Link [Demo]: https://ozavala.coaps.fsu.edu/particleviz/GlobalLitter/
+  Link [GitHub]: https://github.com/NeerajJ16/particleviz
+
+Project: RAG Chatbot
+  Stack: FastAPI, SentenceTransformers, FAISS/Chroma
+  Description: Retrieval-augmented chatbot with embeddings, reranking, and deterministic fallbacks for FAQs and contacts.
+  Link [Demo]: /
+  Link [GitHub]: https://github.com/NeerajJ16/Rag-Chatbot-for-Portfolio
+
+Project: AI Powered Autoinsights CSV
+  Stack: Python, FastAPI, React, Pandas, scikit-learn, Ollama/Hugging Face (LLMs)
+  Description: Automatic CSV preprocessing with one-click cleaning, feature engineering, and AI-suggested formulas & visuals.
+  Link [GitHub]: https://github.com/NeerajJ16/Auto-insights-csv
+
+Project: Data Driven Fitness Tracker
+  Stack: Python, Pandas, Matplotlib, SQLite
+  Description: Tracks workouts, calories, and trends with personalized analytics and simple visual dashboards.
+  Link [GitHub]: https://github.com/NeerajJ16/Data-Driven-Fitness-Tracker-Predictive-Modeling
+
+Project: AI News Summarizer
+  Stack: Python, Streamlit, BART, LangChain
+  Description: Ingests multi-source news, compares extractive vs generative summaries, highlights key entities and sentiment.
+  Link [GitHub]: https://github.com/NeerajJ16/AI-Powered-News-Summarizer-TextRank-vs-BART-
+
+Project: Athlete Performance Regression Model
+  Stack: Python, Scikit-learn, Pandas, NumPy
+  Description: Predicts athlete performance metrics using regression models and visualizes insights for training optimization.
+  Link [Demo]: https://drive.google.com/file/d/1m-hcOyAeQyw06SXxwLBYjweu_kXuzHhV/view?usp=drive_link
+  Link [GitHub]: https://github.com/NeerajJ16/Athlete-Performance-Regression-Model
+
+Project: Ship Maps Data Tracker
+  Stack: PHP, SQL, Leaflet.js, Docker
+  Description: Tracks marine vessel voyage data from 30+ ships and visualizes live positions on interactive maps.
+  Link [Demo]: https://samos.coaps.fsu.edu/html/ship_tracker.php
+
+Project: Erdapp Flux Analyzer
+  Stack: Python, Streamlit, Pandas, Plotly
+  Description: Interactive Streamlit app to analyze Erdapp flux datasets with filters and dynamic visualizations.(Use can use datasets avaialble at ERDAPP Samos Site)
+  Link [Demo]: https://neerajj16-flux-analyzer-app-gfajtt.streamlit.app/
+  Link [GitHub]: https://github.com/NeerajJ16/Flux-Analyzer
+
+Project: SAMOS Visualization Tool
+  Stack: Python, SQL, PHP, Dash, NetCDF, Highcharts
+  Description: Provides interactive visualization of SAMOS shipboard atmospheric and oceanographic datasets.(May require FSU VPN/credentials for access)
+  Link [Demo]: https://samos.coaps.fsu.edu/charts/qc_search.php
+
+Project: SAMOS Legacy → Modern Website
+  Stack: PHP, MySQL, JavaScript, Bootstrap
+  Description: Migrated outdated SAMOS portal to a modern, responsive, and high-performance website.
+  Link [Demo]: https://samos.coaps.fsu.edu/
+
+Project: Distributed Storage System
+  Stack: IPFS, Django, REST APIs
+  Description: Built a distributed file storage system leveraging IPFS for secure and decentralized data management.
+  Link [Demo]: https://www.ijrar.org/papers/IJRAR1CNP041.pdf
+
+Project: Data Warehousing
+  Stack: dbt, Snowflake, SQL, Airflow
+  Description: Designed star/snowflake schemas and automated ELT pipelines powering BI dashboards and analytics.
+  Link [Demo]: https://medium.com/@neerajjawahirani/data-warehousing-for-beginners-full-project-using-free-apis-dbt-and-railway-c4101a7eef66
+  Link [GitHub]: https://github.com/NeerajJ16/Data-Warehousing-Basics
+
+Project: Data Containerization (ETL)
+  Stack: Docker, Python, Railway Postgres, CI/CD
+  Description: Containerized ETL pipeline ingesting APIs, validating and transforming data, and publishing to Postgres.
+  Link [Demo]: https://medium.com/@neerajjawahirani/from-confusion-to-containerization-a-beginners-guide-to-docker-with-a-real-etl-project-25ca40a3e176
+  Link [GitHub]: https://github.com/NeerajJ16/Dockerized-Pipelines-ETL
+
+Project: Python Voice Assistant
+  Stack: Python, SpeechRecognition, pyttsx3, APIs
+  Description: Desktop voice assistant for answering queries, automating tasks, and API interactions via voice.
+  Link [GitHub]: https://github.com/NeerajJ16/Python-Voice-Assistant
+
+Project: Twitter Sentiment Analysis
+  Stack: Python, Tweepy, NLTK, TextBlob, Matplotlib
+  Description: Collected tweets in real time, classified sentiment, and visualized social media trends.
+  Link [Demo]: Inventory Management System
+  Link [GitHub]: https://github.com/NeerajJ16/twitter-analysis
+
+Project: Inventory Management System
+  Stack: Java (Swing, JDBC), MySQL, NetBeans, Ant
+  Description: Desktop application to manage products, sales, suppliers, employees, and invoices with MySQL backend.
+  Link [GitHub]: https://github.com/NeerajJ16/Inventory-Management-Invoice-System-JAVA
+
+============================================================
+DASHBOARDS (ARCHIVES)
+============================================================
+
+Dashboard: Sales Overview Dashboard
+  Stack: Power BI, DAX, Data Modeling
+  Description: An interactive Power BI dashboard designed to analyze regional business performance across Sales, Profit, and Quantity metrics with dynamic Year-over-Year comparison and state-level insights.
+  Link [View]: dashboards/dashboard.html?slug=sales
+
+Dashboard: Pizza Sales Dashboard
+  Stack: Power BI · DAX · Time Intelligence
+  Description: Interactive Power BI dashboard analyzing pizza sales performance.
+  Link [View]: dashboards/dashboard.html?slug=pizzasales
+
+============================================================
+DASHBOARD DETAIL PAGES
+============================================================
+
+Page not found
+  URL: https://neerajj-portfolio.netlify.app/archives/dashboards/dashboard.html?slug=pizzasales
+  Page not found Looks like you’ve followed a broken link or entered a URL that doesn’t exist on this site. If this is your site, and you weren’t expecting a 404 for this path, please visit Netlify’s “page not found” support guide for troubleshooting tips.
+
+Page not found
+  URL: https://neerajj-portfolio.netlify.app/archives/dashboards/dashboard.html?slug=sales
+  Page not found Looks like you’ve followed a broken link or entered a URL that doesn’t exist on this site. If this is your site, and you weren’t expecting a 404 for this path, please visit Netlify’s “page not found” support guide for troubleshooting tips.
+
+============================================================
+MEDIUM BLOG POSTS
+============================================================
+Blog URL: https://neerajjawahirani.medium.com/
