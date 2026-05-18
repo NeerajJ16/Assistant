@@ -621,24 +621,6 @@ if query:
         # SOURCES
         # =================================================
 
-        with st.expander("📚 Retrieved Sources"):
-
-            for i, item in enumerate(
-                retrieved,
-                start=1
-            ):
-
-                st.markdown(
-                    f"""
-### [{i}] {item['title']}
-
-**Type:** {item['chunk_type']}
-
-**Score:** {item['score']:.4f}
-
-{item['text']}
-"""
-                )
 
     # =====================================================
     # SAVE HISTORY
