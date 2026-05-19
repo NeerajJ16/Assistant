@@ -17,11 +17,11 @@ from groq import Groq
 # PAGE CONFIG
 # =========================================================
 
-st.set_page_config(
-    page_title="Neeraj Portfolio Assistant",
-    page_icon="🤖",
-    layout="wide"
-)
+#st.set_page_config(
+ #   page_title="Neeraj Portfolio Assistant",
+ #   page_icon="🤖",
+ #   layout="wide"
+#)
 
 # =========================================================
 # LOAD ENV
