@@ -3,7 +3,6 @@ import json
 import faiss
 import streamlit as st
 
-from datetime import date
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -19,172 +18,10 @@ from groq import Groq
 # =========================================================
 
 st.set_page_config(
-    page_title="Neeraj Portfolio Assistant",
-    page_icon="🤖",
-    layout="wide"
+   page_title="Neeraj Portfolio Assistant",
+  page_icon="🤖",
+  layout="wide"
 )
-
-# =========================================================
-# CUSTOM CSS — split-panel chat UI
-# =========================================================
-
-st.markdown("""
-<style>
-/* ── Hide default Streamlit chrome ── */
-#MainMenu, footer, header { visibility: hidden; }
-.block-container {
-    padding: 0 !important;
-    max-width: 100% !important;
-}
-
-/* ── Root layout ── */
-.chat-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    max-width: 900px;
-    margin: 0 auto;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: #ffffff;
-}
-
-/* ── Messages area ── */
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 28px 20px 12px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    scroll-behavior: smooth;
-}
-
-/* ── Row layout ── */
-.msg-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    max-width: 100%;
-    animation: fadeUp 0.2s ease;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* user messages sit on the RIGHT */
-.msg-row.user {
-    flex-direction: row-reverse;
-}
-
-/* ── Avatars ── */
-.avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 2px;
-}
-
-.avatar.user-av {
-    background: #dbeafe;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
-}
-
-.avatar.ai-av {
-    background: #dcfce7;
-    color: #15803d;
-    border: 1px solid #bbf7d0;
-}
-
-/* ── Bubble wrapper ── */
-.bubble-wrap {
-    display: flex;
-    flex-direction: column;
-    max-width: 72%;
-}
-
-.msg-row.user .bubble-wrap { align-items: flex-end; }
-.msg-row.ai   .bubble-wrap { align-items: flex-start; }
-
-.sender-label {
-    font-size: 11px;
-    color: #9ca3af;
-    margin-bottom: 4px;
-    letter-spacing: 0.03em;
-    font-weight: 500;
-}
-
-/* ── Bubbles ── */
-.bubble {
-    padding: 11px 16px;
-    border-radius: 18px;
-    font-size: 14.5px;
-    line-height: 1.65;
-    max-width: 100%;
-    word-break: break-word;
-}
-
-.msg-row.user .bubble {
-    background: #eff6ff;
-    color: #1e3a5f;
-    border: 1px solid #bfdbfe;
-    border-top-right-radius: 4px;
-}
-
-.msg-row.ai .bubble {
-    background: #f9fafb;
-    color: #111827;
-    border: 1px solid #e5e7eb;
-    border-top-left-radius: 4px;
-}
-
-/* ── Typing indicator ── */
-.typing { display: flex; gap: 5px; align-items: center; padding: 4px 2px; }
-.dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #9ca3af;
-    animation: blink 1.3s infinite;
-}
-.dot:nth-child(2) { animation-delay: 0.18s; }
-.dot:nth-child(3) { animation-delay: 0.36s; }
-
-@keyframes blink {
-    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-    40%           { opacity: 1;   transform: scale(1); }
-}
-
-/* ── Input bar ── */
-.input-bar {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    padding: 14px 20px;
-    border-top: 1px solid #f3f4f6;
-    background: #ffffff;
-}
-
-.stChatInput > div {
-    border-radius: 999px !important;
-    background: #f9fafb !important;
-    border: 1px solid #e5e7eb !important;
-    transition: border-color 0.15s;
-}
-
-.stChatInput > div:focus-within {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.08) !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 # =========================================================
 # LOAD ENV
@@ -203,73 +40,20 @@ if not GROQ_API_KEY:
 # =========================================================
 
 VECTOR_STORE_DIR = Path("vector_store")
-FAISS_INDEX_PATH = VECTOR_STORE_DIR / "faiss_index.bin"
-METADATA_PATH    = VECTOR_STORE_DIR / "metadata.json"
 
-EMBED_MODEL  = "sentence-transformers/all-MiniLM-L6-v2"
+FAISS_INDEX_PATH = VECTOR_STORE_DIR / "faiss_index.bin"
+
+METADATA_PATH = VECTOR_STORE_DIR / "metadata.json"
+
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
 RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-LLM_MODEL    = "openai/gpt-oss-20b"
+
+LLM_MODEL = "openai/gpt-oss-20b"
 
 TOP_K_RETRIEVE = 30
-TOP_K_FINAL    = 10
 
-TODAY = date.today().strftime("%B %d, %Y")
-
-# =========================================================
-# DYNAMIC TOKEN CALCULATOR  (truncation fix applied)
-# =========================================================
-
-def estimate_max_tokens(query: str) -> int:
-    """
-    Token budget that scales with question complexity.
-
-    Simple factual   →  400
-    Standard         →  700
-    Detailed/broad   → 2000   ← FIX: was 1200, raised to prevent mid-sentence cutoff
-    Exhaustive       → 2000
-    """
-    q = query.lower()
-
-    # Very broad / exhaustive questions
-    broad_keywords = [
-        "tell me everything", "full background", "complete profile",
-        "walk me through your entire", "summarize your whole",
-        "all your experience", "everything about", "full resume",
-        "entire career", "describe everything",
-        # Added: common experience walk-throughs that need full room
-        "walk me through your experience",
-        "walk me through your background",
-        "tell me about your experience",
-        "tell me about your background",
-    ]
-    if any(k in q for k in broad_keywords):
-        return 2000
-
-    # Multi-part or detailed interview questions
-    detailed_keywords = [
-        "explain", "describe in detail", "how did you", "what challenges",
-        "walk me through", "elaborate", "give me an overview of all",
-        "tell me about all", "compare", "what is your experience with",
-        "projects", "research", "education and experience",
-        "skills and experience", "certifications and",
-        # Added: generic "experience" / "background" questions hit here too
-        "experience", "background",
-    ]
-    if any(k in q for k in detailed_keywords):
-        return 2000   # ← was 1200 — raised so full answers are never cut off
-
-    # Standard single-topic interview questions
-    standard_keywords = [
-        "what", "who", "where", "when", "how", "which",
-        "tell me about", "describe", "skill",
-        "project", "work", "role", "education", "degree",
-        "certification", "strength", "weakness", "goal", "why",
-    ]
-    if any(k in q for k in standard_keywords):
-        return 700
-
-    # Short / factual fallback
-    return 400
+TOP_K_FINAL = 10
 
 # =========================================================
 # LOAD MODELS
@@ -277,18 +61,46 @@ def estimate_max_tokens(query: str) -> int:
 
 @st.cache_resource
 def load_models():
-    embed_model = SentenceTransformer(EMBED_MODEL)
-    reranker    = CrossEncoder(RERANK_MODEL)
-    index       = faiss.read_index(str(FAISS_INDEX_PATH))
 
-    with open(METADATA_PATH, "r", encoding="utf-8") as f:
+    embed_model = SentenceTransformer(
+        EMBED_MODEL
+    )
+
+    reranker = CrossEncoder(
+        RERANK_MODEL
+    )
+
+    index = faiss.read_index(
+        str(FAISS_INDEX_PATH)
+    )
+
+    with open(
+        METADATA_PATH,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
         metadata = json.load(f)
 
-    client = Groq(api_key=GROQ_API_KEY)
+    client = Groq(
+        api_key=GROQ_API_KEY
+    )
 
-    return embed_model, reranker, index, metadata, client
+    return (
+        embed_model,
+        reranker,
+        index,
+        metadata,
+        client
+    )
 
-embed_model, reranker, index, metadata, client = load_models()
+(
+    embed_model,
+    reranker,
+    index,
+    metadata,
+    client
+) = load_models()
 
 # =========================================================
 # SESSION STATE
@@ -298,21 +110,20 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # =========================================================
-# PROMPTS
+# QUERY REWRITE PROMPT
 # =========================================================
 
 REWRITE_PROMPT = """
 You are a query rewriting assistant for a RAG system.
-Today's date is {today}.
 
 Given the conversation history and follow-up question,
 rewrite the question into a standalone semantic search query.
 
 Rules:
 - Preserve original meaning
-- Expand ambiguous references (e.g. "recent" means near {today})
-- Keep technical terms intact
-- Keep concise — one sentence max
+- Expand ambiguous references
+- Keep technical terms
+- Keep concise
 - Do NOT answer the question
 
 CHAT HISTORY:
@@ -324,63 +135,42 @@ FOLLOW-UP QUESTION:
 STANDALONE SEARCH QUERY:
 """
 
+# =========================================================
+# FINAL PROMPT
+# =========================================================
+
 PROMPT_TEMPLATE = """
-You are an AI assistant representing Neeraj in a job interview.
-Today's date is {today}.
+You are an AI assistant representing Neeraj's
+portfolio, resume, projects, research, skills,
+and professional experience.
 
-Your role is to answer interview questions using ONLY the provided context,
-speaking in first person as Neeraj's representative.
+Your task is to answer interview questions
+using the provided context.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STYLE RULES (follow every single one):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. Write in flowing, professional paragraphs — NO bullet points, NO numbered lists.
-2. Use smooth transitions between ideas ("Additionally…", "Building on that…", "Most recently…").
-3. Speak in first person: "I have…", "I built…", "I led…".
-4. For experience / education: present chronologically, NEWEST FIRST, within the paragraph.
-5. ALWAYS include GitHub or demo links for projects when they appear in the context.
-6. Sound natural and confident — like a senior engineer in a real interview, not a resume bot.
-7. Match answer length to question complexity:
-   - Simple fact → 2–3 sentences
-   - Standard question → 1–2 paragraphs
-   - Broad / multi-part question → 3–4 full paragraphs
-   NEVER truncate mid-sentence. ALWAYS finish the thought completely.
+STRICT STYLE RULES:
+- Answer in a SINGLE, cohesive, and professional paragraph.
+- DO NOT use bullet points, lists, or numbered sequences.
+- Speak in the first person ("I am...", "I worked on...") as Neeraj's representative.
+- Flow naturally from one point to the next using transitions.
+- Provide COMPLETE and detailed information from the context.
+- NEVER leave a sentence or information incomplete. Ensure the paragraph reaches a logical conclusion.
+- ALWAYS include relevant links (e.g., GitHub, Demo) for projects if they exist in the context.
+- Sound like a real person during an interview, not a robot or a list generator.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CONTENT RULES (never break these):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. Use ONLY information present in the CONTEXT below.
-2. Do NOT hallucinate, invent, or extrapolate facts not in the context.
-3. If the context does not contain the answer, say exactly:
-   "I don't have enough information about that in Neeraj's portfolio."
-4. When "current", "latest", or "recent" appears in the question,
-   treat it relative to today ({today}) and highlight the most recent items first.
-5. Cover ALL relevant chunks from the context — do not silently skip any.
+STRICT CONTENT RULES:
+- Answer ONLY using context.
+- Do NOT hallucinate or make up experience.
+- When asked about experience or education, present them chronologically (newest first) within the paragraph.
+- If information is unavailable say:
+  "I don't have enough information about that in Neeraj's portfolio."
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-COMMON INTERVIEW QUESTION GUIDE:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• "Tell me about yourself" → summarize education, experience, key projects, career goal
-• "What are your strengths?" → draw from skills, impactful projects, measurable outcomes
-• "Walk me through your experience" → all work experiences newest-to-oldest, with context
-• "What projects have you worked on?" → cover ALL projects with tech stack + links
-• "What is your tech stack / skills?" → list all skills grouped naturally in prose
-• "Tell me about your education" → degrees, institutions, dates, relevant coursework
-• "Where do you see yourself in 5 years?" → align with Neeraj's research / career direction
-• "What are your certifications?" → all certifications with issuer and date
-• "Why should we hire you?" → blend skills, experience, projects, and attitude
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CONTEXT:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {context}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INTERVIEW QUESTION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUESTION:
 {question}
 
-ANSWER (complete, never cut off mid-sentence):
+ANSWER:
 """
 
 # =========================================================
@@ -388,6 +178,7 @@ ANSWER (complete, never cut off mid-sentence):
 # =========================================================
 
 def rewrite_query(query):
+
     if not st.session_state.chat_history:
         return query
 
@@ -399,21 +190,26 @@ def rewrite_query(query):
     try:
         response = client.chat.completions.create(
             model=LLM_MODEL,
-            messages=[{
-                "role": "user",
-                "content": REWRITE_PROMPT.format(
-                    today=TODAY,
-                    history=history_text,
-                    question=query
-                )
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": REWRITE_PROMPT.format(
+                        history=history_text,
+                        question=query
+                    )
+                }
+            ],
             temperature=0,
-            max_tokens=120
+            max_tokens=100
         )
 
         rewritten = response.choices[0].message.content.strip()
-        return rewritten if rewritten and len(rewritten) >= 3 else query
-
+        
+        # Fallback if empty or failed
+        if not rewritten or len(rewritten) < 3:
+            return query
+            
+        return rewritten
     except Exception:
         return query
 
@@ -422,109 +218,239 @@ def rewrite_query(query):
 # =========================================================
 
 def retrieve_context(query):
-    query_embedding = embed_model.encode([query], convert_to_numpy=True)
+
+    # =====================================================
+    # EMBED QUERY
+    # =====================================================
+
+    query_embedding = embed_model.encode(
+        [query],
+        convert_to_numpy=True
+    )
+
     faiss.normalize_L2(query_embedding)
-    scores, indices = index.search(query_embedding, TOP_K_RETRIEVE)
+
+    # =====================================================
+    # SEARCH
+    # =====================================================
+
+    scores, indices = index.search(
+        query_embedding,
+        TOP_K_RETRIEVE
+    )
 
     query_lower = query.lower()
+
     retrieved_chunks = []
-    preferred_types  = []
 
-    exp_keywords   = ["experience", "work", "job", "career", "employment", "internship", "role"]
-    edu_keywords   = ["education", "degree", "college", "university", "study", "studied", "masters", "bachelors"]
+    preferred_types = []
+
+    # =====================================================
+    # QUERY INTENT DETECTION (Improved)
+    # =====================================================
+    
+    # We check for presence of any of these keywords
+    exp_keywords = ["experience", "work", "job", "career", "employment", "internship", "role"]
+    edu_keywords = ["education", "degree", "college", "university", "study", "studied", "masters", "bachelors"]
     skill_keywords = ["skill", "skills", "technology", "tech stack", "tools", "languages", "databases"]
-    proj_keywords  = ["project", "projects", "portfolio", "built", "developed"]
-    res_keywords   = ["research", "paper", "publication", "initiative", "initiatives"]
-    cert_keywords  = ["certification", "certifications", "certificate"]
+    proj_keywords = ["project", "projects", "portfolio", "built", "developed"]
+    res_keywords = ["research", "paper", "publication", "initiative", "initiatives"]
+    cert_keywords = ["certification", "certifications", "certificate"]
 
-    if any(k in query_lower for k in exp_keywords):   preferred_types.append("experience")
-    if any(k in query_lower for k in edu_keywords):   preferred_types.append("education")
-    if any(k in query_lower for k in skill_keywords): preferred_types.append("skill")
-    if any(k in query_lower for k in proj_keywords):  preferred_types.append("project")
-    if any(k in query_lower for k in res_keywords):   preferred_types.append("research")
-    if any(k in query_lower for k in cert_keywords):  preferred_types.append("certification")
+    if any(k in query_lower for k in exp_keywords):
+        preferred_types.append("experience")
 
-    general_keywords = ["tell me about yourself", "introduce yourself", "background", "who are you"]
-    if any(k in query_lower for k in general_keywords):
-        preferred_types = ["experience", "education", "skill", "project", "certification", "research"]
+    if any(k in query_lower for k in edu_keywords):
+        preferred_types.append("education")
+
+    if any(k in query_lower for k in skill_keywords):
+        preferred_types.append("skill")
+
+    if any(k in query_lower for k in proj_keywords):
+        preferred_types.append("project")
+
+    if any(k in query_lower for k in res_keywords):
+        preferred_types.append("research")
+
+    if any(k in query_lower for k in cert_keywords):
+        preferred_types.append("certification")
+
+    # =====================================================
+    # BUILD RETRIEVED CHUNKS
+    # =====================================================
 
     for idx in indices[0]:
+
         if idx == -1:
             continue
 
         chunk = metadata[idx]
+
         boost = 0
+
+        # =================================================
+        # STRONG TYPE BOOST
+        # =================================================
 
         if chunk["chunk_type"] in preferred_types:
             boost += 1000
 
-        if any(k in query_lower for k in ["recent", "latest", "current", "now"]):
+        # =================================================
+        # RECENCY BOOST
+        # =================================================
+
+        if (
+            "recent" in query_lower or
+            "latest" in query_lower or
+            "current" in query_lower
+        ):
+
             if chunk["chunk_type"] == "experience":
+
                 boost += 500
-                date_value = str(chunk.get("metadata", {}).get("date", ""))
-                if "2025" in date_value or "present" in date_value.lower():
-                    boost += 400
+
+                date_value = str(
+                    chunk.get(
+                        "metadata",
+                        {}
+                    ).get("date", "")
+                )
+
+                if "2025" in date_value:
+                    boost += 300
+
                 elif "2024" in date_value:
                     boost += 200
+
                 elif "2023" in date_value:
                     boost += 100
 
+        # =================================================
+        # TITLE BOOST
+        # =================================================
+
         title_lower = chunk["title"].lower()
+
         for word in query_lower.split():
-            if len(word) > 3 and word in title_lower:
+
+            if word in title_lower:
                 boost += 50
 
         chunk["_boost"] = boost
+
         retrieved_chunks.append(chunk)
 
-    retrieved_chunks = sorted(retrieved_chunks, key=lambda x: x["_boost"], reverse=True)
+    # =====================================================
+    # BOOST SORT
+    # =====================================================
+
+    retrieved_chunks = sorted(
+        retrieved_chunks,
+        key=lambda x: x["_boost"],
+        reverse=True
+    )
+
+    # =====================================================
+    # RERANK INPUT
+    # =====================================================
 
     pairs = []
-    for chunk in retrieved_chunks:
-        rerank_text = f"""
-Chunk Type: {chunk['chunk_type']}
-Title: {chunk['title']}
-Content: {chunk['text']}
-"""
-        pairs.append((query, rerank_text))
 
-    rerank_scores = reranker.predict(pairs)
+    for chunk in retrieved_chunks:
+
+        rerank_text = f"""
+        Chunk Type:
+        {chunk['chunk_type']}
+
+        Title:
+        {chunk['title']}
+
+        Content:
+        {chunk['text']}
+        """
+
+        pairs.append(
+            (query, rerank_text)
+        )
+
+    # =====================================================
+    # RERANK
+    # =====================================================
+
+    rerank_scores = reranker.predict(
+        pairs
+    )
+
+    # =====================================================
+    # COMBINE SCORES
+    # =====================================================
 
     results = []
-    for chunk, score in zip(retrieved_chunks, rerank_scores):
-        final_score = float(score) + chunk["_boost"]
+
+    for chunk, score in zip(
+        retrieved_chunks,
+        rerank_scores
+    ):
+
+        final_score = (
+            float(score) +
+            chunk["_boost"]
+        )
+
         results.append({
-            "score":      final_score,
-            "title":      chunk["title"],
+            "score": final_score,
+            "title": chunk["title"],
             "chunk_type": chunk["chunk_type"],
-            "text":       chunk["text"],
-            "metadata":   chunk.get("metadata", {})
+            "text": chunk["text"],
+            "metadata": chunk.get(
+                "metadata",
+                {}
+            )
         })
 
-    import re
+    # =====================================================
+    # FINAL SORT
+    # =====================================================
 
     def get_date_score(item):
         date_str = str(item.get("metadata", {}).get("date", "")).lower()
         if "present" in date_str:
             return 2026
+        import re
         match = re.search(r"20\d{2}", date_str)
-        return int(match.group()) if match else 0
+        if match:
+            return int(match.group())
+        return 0
 
-    results = sorted(results, key=lambda x: x["score"], reverse=True)
+    results = sorted(
+        results,
+        key=lambda x: x["score"],
+        reverse=True
+    )
 
+    # If it's a general experience/education query, keep top results but sort 
+    # them chronologically for the LLM.
     if any(t in preferred_types for t in ["experience", "education"]):
-        top_n   = results[:TOP_K_FINAL]
+        top_n = results[:TOP_K_FINAL]
         results = sorted(top_n, key=get_date_score, reverse=True)
     else:
         results = results[:TOP_K_FINAL]
 
+    # =====================================================
+    # DEDUPLICATION
+    # =====================================================
+
     unique_results = []
-    seen_titles    = set()
+
+    seen_titles = set()
 
     for item in results:
+
         if item["title"] in seen_titles:
             continue
+
         seen_titles.add(item["title"])
+
         unique_results.append(item)
 
     return unique_results[:TOP_K_FINAL]
@@ -534,38 +460,56 @@ Content: {chunk['text']}
 # =========================================================
 
 def build_context(results):
+
     context_parts = []
 
     for result in results:
-        metadata_text = json.dumps(result.get("metadata", {}), indent=2)
+
+        metadata_text = json.dumps(
+            result.get("metadata", {}),
+            indent=2
+        )
+
         text = f"""
-CHUNK TYPE: {result['chunk_type']}
-TITLE: {result['title']}
+CHUNK TYPE:
+{result['chunk_type']}
+
+TITLE:
+{result['title']}
+
 CONTENT:
 {result['text']}
+
 METADATA:
 {metadata_text}
 """
+
         context_parts.append(text)
 
-    return "\n\n---\n\n".join(context_parts)
+    return "\n\n".join(context_parts)
 
 # =========================================================
 # GENERATE ANSWER
 # =========================================================
 
 def generate_answer(query):
-    standalone_query = rewrite_query(query)
-    retrieved        = retrieve_context(standalone_query)
-    context          = build_context(retrieved)
+
+    standalone_query = rewrite_query(
+        query
+    )
+
+    retrieved = retrieve_context(
+        standalone_query
+    )
+
+    context = build_context(
+        retrieved
+    )
 
     final_prompt = PROMPT_TEMPLATE.format(
-        today=TODAY,
         context=context,
         question=query
     )
-
-    max_tokens = estimate_max_tokens(query)
 
     response = client.chat.completions.create(
         model=LLM_MODEL,
@@ -573,10 +517,7 @@ def generate_answer(query):
             {
                 "role": "system",
                 "content": (
-                    f"You are a grounded RAG assistant for a portfolio chatbot. "
-                    f"Today's date is {TODAY}. "
-                    f"Never truncate your answer mid-sentence. "
-                    f"Always complete every thought fully before stopping."
+                    "You are a grounded RAG assistant."
                 )
             },
             {
@@ -584,107 +525,108 @@ def generate_answer(query):
                 "content": final_prompt
             }
         ],
-        temperature=0.25,
-        max_tokens=max_tokens,
+        temperature=0.2,
+        max_tokens=850,
         stream=True
     )
 
     return response, retrieved
 
 # =========================================================
-# RENDER CHAT HISTORY (split-panel style)
+# SIDEBAR
 # =========================================================
 
-def render_message(role: str, content: str):
-    """Render a single chat bubble with split-panel layout."""
-    if role == "user":
-        st.markdown(f"""
-        <div class="msg-row user">
-            <div class="avatar user-av">HR</div>
-            <div class="bubble-wrap">
-                <div class="sender-label">Interviewer</div>
-                <div class="bubble">{content}</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div class="msg-row ai">
-            <div class="avatar ai-av">NR</div>
-            <div class="bubble-wrap">
-                <div class="sender-label">Neeraj</div>
-                <div class="bubble">{content}</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    # with st.sidebar:
+
+    #     st.title("👨‍💻 Neeraj AI Assistant")
+
+    #     st.markdown("""
+    # Ask about:
+    # - Projects
+    # - Experience
+    # - Skills
+    # - Education
+    # - Research
+    # - AI work
+    # - Cloud technologies
+    # - Certifications
+    # """)
+
+    #     st.divider()
+
+    #     if st.button("🗑️ Clear Chat"):
+    #         st.session_state.chat_history = []
+    #         st.rerun()
 
 # =========================================================
 # MAIN UI
 # =========================================================
 
-# Render full chat history
-for chat in st.session_state.chat_history:
-    render_message("user",      chat["user"])
-    render_message("assistant", chat["assistant"])
+#st.title("🤖 Neeraj Portfolio Assistant")
 
-# Input box
-query = st.chat_input("Ask your questions here…")
+for chat in st.session_state.chat_history:
+
+    with st.chat_message("user"):
+        st.markdown(chat["user"])
+
+    with st.chat_message("assistant"):
+        st.markdown(chat["assistant"])
+
+query = st.chat_input(
+    "Ask your questions here..."
+)
 
 if query:
-    # Show user bubble immediately
-    render_message("user", query)
 
-    # Show AI bubble with streaming
-    with st.empty():
-        st.markdown("""
-        <div class="msg-row ai">
-            <div class="avatar ai-av">NR</div>
-            <div class="bubble-wrap">
-                <div class="sender-label">Neeraj</div>
-                <div class="bubble">
-                    <div class="typing">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    # =====================================================
+    # USER MESSAGE
+    # =====================================================
 
-        completion, retrieved = generate_answer(query)
+    with st.chat_message("user"):
+        st.markdown(query)
+
+    # =====================================================
+    # ASSISTANT
+    # =====================================================
+
+    with st.chat_message("assistant"):
+
+        response_placeholder = st.empty()
+
         full_response = ""
 
-        for chunk in completion:
-            delta = chunk.choices[0].delta.content
-            if delta:
-                full_response += delta
-                # Stream update — escape for safe HTML rendering
-                safe = full_response.replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
-                st.markdown(f"""
-                <div class="msg-row ai">
-                    <div class="avatar ai-av">NR</div>
-                    <div class="bubble-wrap">
-                        <div class="sender-label">Neeraj</div>
-                        <div class="bubble">{safe}▌</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+        with st.spinner("Thinking..."):
 
-        # Final bubble without cursor
-        safe_final = full_response.replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
-        st.markdown(f"""
-        <div class="msg-row ai">
-            <div class="avatar ai-av">NR</div>
-            <div class="bubble-wrap">
-                <div class="sender-label">Neeraj</div>
-                <div class="bubble">{safe_final}</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            completion, retrieved = generate_answer(
+                query
+            )
 
-    # Save to history
+            for chunk in completion:
+
+                delta = chunk.choices[0].delta.content
+
+                if delta:
+
+                    full_response += delta
+
+                    response_placeholder.markdown(
+                        full_response + "▌"
+                    )
+
+        response_placeholder.markdown(
+            full_response
+        )
+
+        # =================================================
+        # SOURCES
+        # =================================================
+
+
+    # =====================================================
+    # SAVE HISTORY
+    # =====================================================
+
     st.session_state.chat_history.append({
-        "user":      query,
+        "user": query,
         "assistant": full_response
     })
