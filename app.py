@@ -491,14 +491,7 @@ def generate_answer(query):
 # TITLE
 # =========================================================
 
-st.markdown(
-    """
-    <div class="chat-title">
-        🤖 Neeraj Portfolio Assistant
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+
 
 # =========================================================
 # CHAT HISTORY
