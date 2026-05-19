@@ -58,13 +58,13 @@ html, body, [data-testid="stAppViewContainer"] {
 /* ROWS */
 .user-row {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     margin-bottom: 22px;
 }
 
 .assistant-row {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-bottom: 22px;
 }
 
