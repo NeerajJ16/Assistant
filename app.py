@@ -545,7 +545,7 @@ def generate_answer(query):
         ],
         temperature=0.3,
         top_p=0.95,
-        max_tokens=2000,
+        max_tokens=850,
         stream=True
     )
 
