@@ -116,19 +116,83 @@ html, body, [data-testid="stAppViewContainer"] {
     word-wrap: break-word;
 }
 
-/* CHAT INPUT */
+/* INPUT CONTAINER */
 .stChatInputContainer {
-    background-color: #0f172a !important;
-    border-top: 1px solid #1e293b;
-    padding-top: 15px;
+
+    background: transparent !important;
+
+    border: none !important;
+
+    padding-bottom: 20px;
 }
 
 /* INPUT BOX */
-textarea {
+[data-testid="stChatInput"] {
+
+    max-width: 1200px;
+
+    margin: auto;
+
     background: #111827 !important;
-    color: white !important;
+
+    border: 1px solid #374151 !important;
+
     border-radius: 14px !important;
+
+    padding: 8px 12px !important;
 }
+
+/* TEXTAREA */
+[data-testid="stChatInput"] textarea {
+
+    background: transparent !important;
+
+    color: white !important;
+
+    border: none !important;
+
+    font-size: 15px !important;
+
+    min-height: 22px !important;
+
+    padding-top: 8px !important;
+}
+
+/* PLACEHOLDER */
+[data-testid="stChatInput"] textarea::placeholder {
+
+    color: #9ca3af !important;
+}
+
+/* REMOVE OUTLINE */
+textarea:focus,
+button:focus {
+
+    outline: none !important;
+
+    box-shadow: none !important;
+}
+
+/* SEND BUTTON */
+[data-testid="stChatInputSubmitButton"] {
+
+    background: #2563eb !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    width: 36px !important;
+
+    height: 36px !important;
+}
+
+/* SEND ICON */
+[data-testid="stChatInputSubmitButton"] svg {
+
+    color: white !important;
+}
+
 
 /* SCROLLBAR */
 ::-webkit-scrollbar {
