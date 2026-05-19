@@ -18,10 +18,130 @@ from groq import Groq
 # =========================================================
 
 st.set_page_config(
-   page_title="Neeraj Portfolio Assistant",
-  page_icon="🤖",
-  layout="wide"
+    page_title="Neeraj Portfolio Assistant",
+    page_icon="🤖",
+    layout="wide"
 )
+
+# =========================================================
+# CUSTOM CSS
+# =========================================================
+
+st.markdown("""
+<style>
+
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #0f172a;
+}
+
+/* MAIN CONTAINER */
+.main {
+    padding-top: 1rem;
+}
+
+/* CHAT WRAPPER */
+.chat-wrapper {
+    max-width: 1200px;
+    margin: auto;
+    padding-bottom: 120px;
+}
+
+/* TITLE */
+.chat-title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 40px;
+}
+
+/* ROWS */
+.user-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 22px;
+}
+
+.assistant-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 22px;
+}
+
+/* USER BUBBLE */
+.user-bubble {
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #1d4ed8
+    );
+
+    color: white;
+
+    padding: 16px 20px;
+
+    border-radius: 20px;
+
+    max-width: 72%;
+
+    font-size: 16px;
+
+    line-height: 1.7;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,0.25);
+
+    word-wrap: break-word;
+}
+
+/* ASSISTANT BUBBLE */
+.assistant-bubble {
+    background: white;
+
+    color: #111827;
+
+    padding: 16px 20px;
+
+    border-radius: 20px;
+
+    max-width: 72%;
+
+    font-size: 16px;
+
+    line-height: 1.8;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,0.12);
+
+    word-wrap: break-word;
+}
+
+/* CHAT INPUT */
+.stChatInputContainer {
+    background-color: #0f172a !important;
+    border-top: 1px solid #1e293b;
+    padding-top: 15px;
+}
+
+/* INPUT BOX */
+textarea {
+    background: #111827 !important;
+    color: white !important;
+    border-radius: 14px !important;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # LOAD ENV
@@ -51,9 +171,9 @@ RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 LLM_MODEL = "openai/gpt-oss-20b"
 
-TOP_K_RETRIEVE = 30
+TOP_K_RETRIEVE = 12
 
-TOP_K_FINAL = 10
+TOP_K_FINAL = 5
 
 # =========================================================
 # LOAD MODELS
@@ -110,7 +230,7 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # =========================================================
-# QUERY REWRITE PROMPT
+# REWRITE PROMPT
 # =========================================================
 
 REWRITE_PROMPT = """
@@ -144,25 +264,15 @@ You are an AI assistant representing Neeraj's
 portfolio, resume, projects, research, skills,
 and professional experience.
 
-Your task is to answer interview questions
-using the provided context.
-
-STRICT STYLE RULES:
-- Answer in a SINGLE, cohesive, and professional paragraph.
-- DO NOT use bullet points, lists, or numbered sequences.
-- Speak in the first person ("I am...", "I worked on...") as Neeraj's representative.
-- Flow naturally from one point to the next using transitions.
-- Provide COMPLETE and detailed information from the context.
-- NEVER leave a sentence or information incomplete. Ensure the paragraph reaches a logical conclusion.
-- ALWAYS include relevant links (e.g., GitHub, Demo) for projects if they exist in the context.
-- Sound like a real person during an interview, not a robot or a list generator.
-
-STRICT CONTENT RULES:
-- Answer ONLY using context.
-- Do NOT hallucinate or make up experience.
-- When asked about experience or education, present them chronologically (newest first) within the paragraph.
-- If information is unavailable say:
-  "I don't have enough information about that in Neeraj's portfolio."
+STRICT RULES:
+- Answer naturally like a real human.
+- Use conversational interview style.
+- Be detailed but concise.
+- Never use bullet points.
+- Speak in first person.
+- Use only provided context.
+- Never hallucinate.
+- Always complete the response fully.
 
 CONTEXT:
 {context}
@@ -188,6 +298,7 @@ def rewrite_query(query):
     ])
 
     try:
+
         response = client.chat.completions.create(
             model=LLM_MODEL,
             messages=[
@@ -203,13 +314,19 @@ def rewrite_query(query):
             max_tokens=100
         )
 
-        rewritten = response.choices[0].message.content.strip()
-        
-        # Fallback if empty or failed
-        if not rewritten or len(rewritten) < 3:
+        rewritten = (
+            response
+            .choices[0]
+            .message
+            .content
+            .strip()
+        )
+
+        if not rewritten:
             return query
-            
+
         return rewritten
+
     except Exception:
         return query
 
@@ -219,10 +336,6 @@ def rewrite_query(query):
 
 def retrieve_context(query):
 
-    # =====================================================
-    # EMBED QUERY
-    # =====================================================
-
     query_embedding = embed_model.encode(
         [query],
         convert_to_numpy=True
@@ -230,54 +343,12 @@ def retrieve_context(query):
 
     faiss.normalize_L2(query_embedding)
 
-    # =====================================================
-    # SEARCH
-    # =====================================================
-
     scores, indices = index.search(
         query_embedding,
         TOP_K_RETRIEVE
     )
 
-    query_lower = query.lower()
-
     retrieved_chunks = []
-
-    preferred_types = []
-
-    # =====================================================
-    # QUERY INTENT DETECTION (Improved)
-    # =====================================================
-    
-    # We check for presence of any of these keywords
-    exp_keywords = ["experience", "work", "job", "career", "employment", "internship", "role"]
-    edu_keywords = ["education", "degree", "college", "university", "study", "studied", "masters", "bachelors"]
-    skill_keywords = ["skill", "skills", "technology", "tech stack", "tools", "languages", "databases"]
-    proj_keywords = ["project", "projects", "portfolio", "built", "developed"]
-    res_keywords = ["research", "paper", "publication", "initiative", "initiatives"]
-    cert_keywords = ["certification", "certifications", "certificate"]
-
-    if any(k in query_lower for k in exp_keywords):
-        preferred_types.append("experience")
-
-    if any(k in query_lower for k in edu_keywords):
-        preferred_types.append("education")
-
-    if any(k in query_lower for k in skill_keywords):
-        preferred_types.append("skill")
-
-    if any(k in query_lower for k in proj_keywords):
-        preferred_types.append("project")
-
-    if any(k in query_lower for k in res_keywords):
-        preferred_types.append("research")
-
-    if any(k in query_lower for k in cert_keywords):
-        preferred_types.append("certification")
-
-    # =====================================================
-    # BUILD RETRIEVED CHUNKS
-    # =====================================================
 
     for idx in indices[0]:
 
@@ -286,72 +357,10 @@ def retrieve_context(query):
 
         chunk = metadata[idx]
 
-        boost = 0
-
-        # =================================================
-        # STRONG TYPE BOOST
-        # =================================================
-
-        if chunk["chunk_type"] in preferred_types:
-            boost += 1000
-
-        # =================================================
-        # RECENCY BOOST
-        # =================================================
-
-        if (
-            "recent" in query_lower or
-            "latest" in query_lower or
-            "current" in query_lower
-        ):
-
-            if chunk["chunk_type"] == "experience":
-
-                boost += 500
-
-                date_value = str(
-                    chunk.get(
-                        "metadata",
-                        {}
-                    ).get("date", "")
-                )
-
-                if "2025" in date_value:
-                    boost += 300
-
-                elif "2024" in date_value:
-                    boost += 200
-
-                elif "2023" in date_value:
-                    boost += 100
-
-        # =================================================
-        # TITLE BOOST
-        # =================================================
-
-        title_lower = chunk["title"].lower()
-
-        for word in query_lower.split():
-
-            if word in title_lower:
-                boost += 50
-
-        chunk["_boost"] = boost
-
         retrieved_chunks.append(chunk)
 
     # =====================================================
-    # BOOST SORT
-    # =====================================================
-
-    retrieved_chunks = sorted(
-        retrieved_chunks,
-        key=lambda x: x["_boost"],
-        reverse=True
-    )
-
-    # =====================================================
-    # RERANK INPUT
+    # RERANK
     # =====================================================
 
     pairs = []
@@ -359,13 +368,13 @@ def retrieve_context(query):
     for chunk in retrieved_chunks:
 
         rerank_text = f"""
-        Chunk Type:
-        {chunk['chunk_type']}
-
-        Title:
+        TITLE:
         {chunk['title']}
 
-        Content:
+        TYPE:
+        {chunk['chunk_type']}
+
+        CONTENT:
         {chunk['text']}
         """
 
@@ -373,17 +382,9 @@ def retrieve_context(query):
             (query, rerank_text)
         )
 
-    # =====================================================
-    # RERANK
-    # =====================================================
-
     rerank_scores = reranker.predict(
         pairs
     )
-
-    # =====================================================
-    # COMBINE SCORES
-    # =====================================================
 
     results = []
 
@@ -392,13 +393,8 @@ def retrieve_context(query):
         rerank_scores
     ):
 
-        final_score = (
-            float(score) +
-            chunk["_boost"]
-        )
-
         results.append({
-            "score": final_score,
+            "score": float(score),
             "title": chunk["title"],
             "chunk_type": chunk["chunk_type"],
             "text": chunk["text"],
@@ -408,52 +404,13 @@ def retrieve_context(query):
             )
         })
 
-    # =====================================================
-    # FINAL SORT
-    # =====================================================
-
-    def get_date_score(item):
-        date_str = str(item.get("metadata", {}).get("date", "")).lower()
-        if "present" in date_str:
-            return 2026
-        import re
-        match = re.search(r"20\d{2}", date_str)
-        if match:
-            return int(match.group())
-        return 0
-
     results = sorted(
         results,
         key=lambda x: x["score"],
         reverse=True
     )
 
-    # If it's a general experience/education query, keep top results but sort 
-    # them chronologically for the LLM.
-    if any(t in preferred_types for t in ["experience", "education"]):
-        top_n = results[:TOP_K_FINAL]
-        results = sorted(top_n, key=get_date_score, reverse=True)
-    else:
-        results = results[:TOP_K_FINAL]
-
-    # =====================================================
-    # DEDUPLICATION
-    # =====================================================
-
-    unique_results = []
-
-    seen_titles = set()
-
-    for item in results:
-
-        if item["title"] in seen_titles:
-            continue
-
-        seen_titles.add(item["title"])
-
-        unique_results.append(item)
-
-    return unique_results[:TOP_K_FINAL]
+    return results[:TOP_K_FINAL]
 
 # =========================================================
 # BUILD CONTEXT
@@ -471,11 +428,11 @@ def build_context(results):
         )
 
         text = f"""
-CHUNK TYPE:
-{result['chunk_type']}
-
 TITLE:
 {result['title']}
+
+TYPE:
+{result['chunk_type']}
 
 CONTENT:
 {result['text']}
@@ -494,9 +451,7 @@ METADATA:
 
 def generate_answer(query):
 
-    standalone_query = rewrite_query(
-        query
-    )
+    standalone_query = rewrite_query(query)
 
     retrieved = retrieve_context(
         standalone_query
@@ -516,114 +471,184 @@ def generate_answer(query):
         messages=[
             {
                 "role": "system",
-                "content": (
-                    "You are a grounded RAG assistant."
-                )
+                "content":
+                "You are a grounded RAG assistant."
             },
             {
                 "role": "user",
                 "content": final_prompt
             }
         ],
-        temperature=0.2,
-        max_tokens=850,
+        temperature=0.3,
+        top_p=0.95,
+        max_tokens=2000,
         stream=True
     )
 
-    return response, retrieved
+    return response
 
 # =========================================================
-# SIDEBAR
+# TITLE
 # =========================================================
 
-    # with st.sidebar:
-
-    #     st.title("👨‍💻 Neeraj AI Assistant")
-
-    #     st.markdown("""
-    # Ask about:
-    # - Projects
-    # - Experience
-    # - Skills
-    # - Education
-    # - Research
-    # - AI work
-    # - Cloud technologies
-    # - Certifications
-    # """)
-
-    #     st.divider()
-
-    #     if st.button("🗑️ Clear Chat"):
-    #         st.session_state.chat_history = []
-    #         st.rerun()
+st.markdown(
+    """
+    <div class="chat-title">
+        🤖 Neeraj Portfolio Assistant
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================================================
-# MAIN UI
+# CHAT HISTORY
 # =========================================================
 
-#st.title("🤖 Neeraj Portfolio Assistant")
+st.markdown(
+    '<div class="chat-wrapper">',
+    unsafe_allow_html=True
+)
 
 for chat in st.session_state.chat_history:
 
-    with st.chat_message("user"):
-        st.markdown(chat["user"])
+    # USER MESSAGE
+    st.markdown(
+        f"""
+        <div class="user-row">
+            <div class="user-bubble">
+                {chat["user"]}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    with st.chat_message("assistant"):
-        st.markdown(chat["assistant"])
+    # ASSISTANT MESSAGE
+    st.markdown(
+        f"""
+        <div class="assistant-row">
+            <div class="assistant-bubble">
+                {chat["assistant"]}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True
+)
+
+# =========================================================
+# INPUT
+# =========================================================
 
 query = st.chat_input(
-    "Ask your questions here..."
+    "Ask me anything about Neeraj..."
 )
+
+# =========================================================
+# PROCESS QUERY
+# =========================================================
 
 if query:
 
-    # =====================================================
-    # USER MESSAGE
-    # =====================================================
+    # USER MESSAGE DISPLAY
+    st.markdown(
+        f"""
+        <div class="user-row">
+            <div class="user-bubble">
+                {query}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    with st.chat_message("user"):
-        st.markdown(query)
+    # ASSISTANT PLACEHOLDER
+    assistant_placeholder = st.empty()
 
-    # =====================================================
-    # ASSISTANT
-    # =====================================================
+    full_response = ""
 
-    with st.chat_message("assistant"):
-
-        response_placeholder = st.empty()
-
-        full_response = ""
+    try:
 
         with st.spinner("Thinking..."):
 
-            completion, retrieved = generate_answer(
+            completion = generate_answer(
                 query
             )
 
+            token_buffer = ""
+
             for chunk in completion:
 
-                delta = chunk.choices[0].delta.content
+                try:
 
-                if delta:
-
-                    full_response += delta
-
-                    response_placeholder.markdown(
-                        full_response + "▌"
+                    delta = (
+                        chunk
+                        .choices[0]
+                        .delta
+                        .content
                     )
 
-        response_placeholder.markdown(
-            full_response
+                    if delta:
+
+                        token_buffer += delta
+                        full_response += delta
+
+                        # BUFFERED RENDER
+                        if len(token_buffer) > 20:
+
+                            assistant_placeholder.markdown(
+                                f"""
+                                <div class="assistant-row">
+                                    <div class="assistant-bubble">
+                                        {full_response}▌
+                                    </div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+
+                            token_buffer = ""
+
+                except Exception:
+                    pass
+
+        full_response = full_response.strip()
+
+        # FINAL RENDER
+        assistant_placeholder.markdown(
+            f"""
+            <div class="assistant-row">
+                <div class="assistant-bubble">
+                    {full_response}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        # =================================================
-        # SOURCES
-        # =================================================
+    except Exception as e:
 
+        full_response = (
+            f"Error generating response: {str(e)}"
+        )
+
+        assistant_placeholder.markdown(
+            f"""
+            <div class="assistant-row">
+                <div class="assistant-bubble">
+                    {full_response}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     # =====================================================
-    # SAVE HISTORY
+    # SAVE CHAT
     # =====================================================
 
     st.session_state.chat_history.append({
