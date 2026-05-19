@@ -17,11 +17,11 @@ from groq import Groq
 # PAGE CONFIG
 # =========================================================
 
-#st.set_page_config(
- #   page_title="Neeraj Portfolio Assistant",
- #   page_icon="🤖",
- #   layout="wide"
-#)
+st.set_page_config(
+   page_title="Neeraj Portfolio Assistant",
+  page_icon="🤖",
+  layout="wide"
+)
 
 # =========================================================
 # LOAD ENV
@@ -562,7 +562,7 @@ def generate_answer(query):
 # MAIN UI
 # =========================================================
 
-st.title("🤖 Neeraj Portfolio Assistant")
+#st.title("🤖 Neeraj Portfolio Assistant")
 
 for chat in st.session_state.chat_history:
 
