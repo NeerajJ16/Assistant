@@ -573,7 +573,7 @@ for chat in st.session_state.chat_history:
         st.markdown(chat["assistant"])
 
 query = st.chat_input(
-    "Ask interview question..."
+    "Ask your questions here..."
 )
 
 if query:
