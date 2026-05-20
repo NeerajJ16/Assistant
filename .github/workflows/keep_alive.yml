@@ -12,10 +12,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install Playwright
         run: npm install playwright
+
+      - name: Install Chromium
+        run: npx playwright install chromium
 
       - name: Wake Streamlit app
         run: |
