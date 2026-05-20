@@ -2,21 +2,36 @@ name: Keep Streamlit Alive
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch:         # lets you trigger it manually from GitHub too
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Streamlit app
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: npm install playwright
+
+      - name: Wake Streamlit app
         run: |
-          curl -L \
-            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36" \
-            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-            -H "Accept-Language: en-US,en;q=0.5" \
-            --max-time 30 \
-            --retry 2 \
-            -o /dev/null \
-            -w "HTTP Status: %{http_code}\n" \
-            https://neeraj-chat-assistant.streamlit.app
+          node -e "
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            console.log('Opening app...');
+            await page.goto('https://neeraj-chat-assistant.streamlit.app', {
+              waitUntil: 'networkidle',
+              timeout: 60000
+            });
+            const title = await page.title();
+            console.log('Page title:', title);
+            console.log('App is awake.');
+            await browser.close();
+          })();
+          "
