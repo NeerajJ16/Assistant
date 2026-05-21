@@ -1,7 +1,6 @@
 import os
 import json
 import faiss
-import hashlib
 import streamlit as st
 
 from pathlib import Path
@@ -13,6 +12,45 @@ from sentence_transformers import (
 )
 
 from groq import Groq
+
+import re
+
+
+
+def make_links_clickable(text):
+
+    url_pattern = r'((?:https?://|www\.)[^\s<]+[^<.,:;"\')\]\s])'
+
+    def replace_link(match):
+
+        url = match.group(0)
+
+        href = url
+
+        # add https if missing
+        if url.startswith("www."):
+
+            href = "https://" + url
+
+        return f'''
+        <a
+            href="{href}"
+            target="_blank"
+            style="
+                color:#60a5fa;
+                text-decoration:none;
+                font-weight:500;
+            "
+        >
+            {url}
+        </a>
+        '''
+
+    return re.sub(
+        url_pattern,
+        replace_link,
+        text
+    )
 
 # =========================================================
 # PAGE CONFIG
@@ -230,8 +268,6 @@ FAISS_INDEX_PATH = VECTOR_STORE_DIR / "faiss_index.bin"
 
 METADATA_PATH = VECTOR_STORE_DIR / "metadata.json"
 
-HASH_FILE = VECTOR_STORE_DIR / "content_hash.txt"
-
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
@@ -242,192 +278,451 @@ TOP_K_RETRIEVE = 12
 
 TOP_K_FINAL = 5
 
-# =========================================================
-# FILE PATHS
-# =========================================================
-
-RAW_FILE = Path("scraped_output/portfolio_scraped.json")
-CHUNK_FILE = Path("scraped_output/chunked_data.json")
 
 # =========================================================
-# CONTENT HASH
+# VECTOR STORE SYSTEM
 # =========================================================
 
-def get_file_hash(filepath: Path) -> str:
-    """Compute MD5 hash of file contents."""
-    with open(filepath, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()
+import uuid
+import hashlib
+import numpy as np
+
+RAW_FILE = Path(
+    "scraped_output/portfolio_scraped.json"
+)
+
+CHUNK_FILE = Path(
+    "scraped_output/chunked_data.json"
+)
+
+VECTOR_STORE_DIR = Path("vector_store")
+
+FAISS_INDEX_PATH = (
+    VECTOR_STORE_DIR / "faiss.index"
+)
+
+METADATA_PATH = (
+    VECTOR_STORE_DIR / "metadata.json"
+)
+
+HASH_FILE = (
+    VECTOR_STORE_DIR / "data.hash"
+)
+
+EMBED_MODEL = (
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
 
 
-def needs_rebuild() -> bool:
-    """Return True if the vector index is missing or the source data has changed."""
+# =========================================================
+# TEXT CLEANER
+# =========================================================
+
+def clean_text(text):
+
+    if text is None:
+        return ""
+
+    text = str(text)
+
+    text = text.replace("\n", " ")
+
+    return " ".join(text.split()).strip()
+
+
+# =========================================================
+# HASH CHECK
+# =========================================================
+
+def get_file_hash(path):
+
+    with open(path, "rb") as f:
+
+        return hashlib.md5(
+            f.read()
+        ).hexdigest()
+
+
+def needs_rebuild():
+
+    if not RAW_FILE.exists():
+        return False
+
     if not FAISS_INDEX_PATH.exists():
         return True
+
     if not METADATA_PATH.exists():
         return True
+
     if not HASH_FILE.exists():
         return True
-    if not RAW_FILE.exists():
-        return False  # nothing to rebuild from
-    saved_hash = HASH_FILE.read_text().strip()
-    current_hash = get_file_hash(RAW_FILE)
-    return current_hash != saved_hash
+
+    current_hash = get_file_hash(
+        RAW_FILE
+    )
+
+    old_hash = HASH_FILE.read_text()
+
+    return current_hash != old_hash
+
+
+# =========================================================
+# CHUNK CREATOR
+# =========================================================
+
+def add_chunk(
+    chunks,
+    chunk_type,
+    title,
+    content,
+    metadata=None
+):
+
+    chunks.append({
+
+        "chunk_id": str(uuid.uuid4()),
+
+        "chunk_type": chunk_type,
+
+        "title": clean_text(title),
+
+        "text": clean_text(content),
+
+        "metadata": metadata or {}
+    })
 
 
 # =========================================================
 # CHUNKING
 # =========================================================
 
-def run_chunking():
-    with open(RAW_FILE, "r", encoding="utf-8") as f:
+def build_chunks():
+
+    with open(
+        RAW_FILE,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
         data = json.load(f)
 
     chunks = []
 
-    def clean_text(text):
-        if not text:
-            return ""
-        return " ".join(text.replace("\n", " ").split()).strip()
-
-    def make_chunk(chunk_type, title, text, metadata=None):
-        chunks.append({
-            "chunk_id": str(__import__("uuid").uuid4()),
-            "chunk_type": chunk_type,
-            "title": clean_text(title),
-            "text": clean_text(text),
-            "metadata": metadata or {}
-        })
-
-    main = data.get("main", {})
-
+    # =====================================================
     # HERO
-    hero = main.get("hero", {})
-    make_chunk("hero", "Hero Section",
-        f"Section: About / Hero\nName: {hero.get('name','')}\nTagline: {hero.get('tagline','')}\nBio: {hero.get('bio','')}",
-        {"section": "hero"})
+    # =====================================================
 
+    hero = data.get("hero", {})
+
+    add_chunk(
+        chunks,
+        "hero",
+        hero.get("name", ""),
+        f"""
+        Name:
+        {hero.get('name', '')}
+
+        Roles:
+        {", ".join(hero.get('roles', []))}
+
+        Tagline:
+        {hero.get('tagline', '')}
+
+        Email:
+        {hero.get('email', '')}
+
+        GitHub:
+        {hero.get('github', '')}
+
+        LinkedIn:
+        {hero.get('linkedin', '')}
+        """,
+        hero
+    )
+
+    # =====================================================
     # SKILLS
-    for skill in main.get("skills", []):
-        make_chunk("skill", skill.get("category",""),
-            f"Section: Skills\nCategory: {skill.get('category','')}\nTools: {skill.get('tools','')}",
-            {"category": skill.get("category","")})
+    # =====================================================
 
+    for skill in data.get("skills", []):
+
+        add_chunk(
+            chunks,
+            "skill",
+            skill.get("title", ""),
+            f"""
+            Skill Category:
+            {skill.get('title', '')}
+
+            Skills:
+            {skill.get('items', '')}
+            """,
+            skill
+        )
+
+    # =====================================================
     # EXPERIENCE
-    for exp in main.get("resume", {}).get("experience", []):
-        make_chunk("experience", f"{exp.get('company','')} at {exp.get('role','')}",
-            f"Section: Work Experience\nRole: {exp.get('company','')}\nCompany: {exp.get('role','')}\nDate: {exp.get('date','')}\nDescription: {exp.get('description','')}",
-            {"company": exp.get("role",""), "role": exp.get("company",""), "date": exp.get("date","")})
+    # =====================================================
 
+    for exp in data.get("experience", []):
+
+        add_chunk(
+            chunks,
+            "experience",
+            f"{exp.get('role')} - {exp.get('company')}",
+            f"""
+            Role:
+            {exp.get('role', '')}
+
+            Company:
+            {exp.get('company', '')}
+
+            Location:
+            {exp.get('location', '')}
+
+            Duration:
+            {exp.get('period', '')}
+
+            Description:
+            {exp.get('description', '')}
+            """,
+            exp
+        )
+
+    # =====================================================
     # EDUCATION
-    for edu in main.get("resume", {}).get("education", []):
-        make_chunk("education", edu.get("role",""),
-            f"Section: Education\nDegree: {edu.get('role','')}\nInstitution: {edu.get('company','')}\nDate: {edu.get('date','')}",
-            {"institution": edu.get("company","")})
+    # =====================================================
 
-    # CERTIFICATIONS
-    for cert in main.get("resume", {}).get("certifications", []):
-        make_chunk("certification", cert.get("text",""), cert.get("text",""))
+    for edu in data.get("education", []):
 
+        add_chunk(
+            chunks,
+            "education",
+            edu.get("degree", ""),
+            f"""
+            Degree:
+            {edu.get('degree', '')}
+
+            Institution:
+            {edu.get('institution', '')}
+
+            GPA:
+            {edu.get('gpa', '')}
+
+            Courses:
+            {edu.get('courses', '')}
+            """,
+            edu
+        )
+
+    # =====================================================
     # RESEARCH
-    for research in main.get("researches", []):
-        make_chunk("research", research.get("title",""),
-            f"Section: Research\nTitle: {research.get('title','')}\nDescription: {research.get('description','')}\nLinks: {json.dumps(research.get('links',{}))}",
-            {"links": research.get("links",{})})
+    # =====================================================
 
+    for research in data.get("research", []):
+
+        add_chunk(
+            chunks,
+            "research",
+            research.get("title", ""),
+            f"""
+            Research:
+            {research.get('title', '')}
+
+            Description:
+            {research.get('description', '')}
+
+            Link:
+            {research.get('link', '')}
+            """,
+            research
+        )
+
+    # =====================================================
     # PROJECTS
-    for project in data.get("archives", {}).get("projects_table", []):
-        stack = ", ".join(project.get("stack", []))
-        make_chunk("project", project.get("name",""),
-            f"Section: Projects\nProject Name: {project.get('name','')}\nTech Stack: {stack}\nDescription: {project.get('description','')}\nLinks: {json.dumps(project.get('links',[]))}",
-            {"stack": project.get("stack",[]), "links": project.get("links",[])})
+    # =====================================================
 
+    for project in data.get(
+        "archiveProjects",
+        []
+    ):
+
+        add_chunk(
+            chunks,
+            "project",
+            project.get("title", ""),
+            f"""
+            Project:
+            {project.get('title', '')}
+
+            Category:
+            {project.get('category', '')}
+
+            Stack:
+            {project.get('stack', '')}
+
+            Description:
+            {project.get('description', '')}
+
+            Demo:
+            {project.get('demo', '')}
+
+            GitHub:
+            {project.get('github', '')}
+            """,
+            project
+        )
+
+    # =====================================================
     # DASHBOARDS
-    for dashboard in data.get("archives", {}).get("dashboards_table", []):
-        make_chunk("dashboard", dashboard.get("name",""),
-            f"Section: Dashboards\nDashboard Name: {dashboard.get('name','')}\nStack: {', '.join(dashboard.get('stack',[]))}\nDescription: {dashboard.get('description','')}",
-            {"stack": dashboard.get("stack",[])})
+    # =====================================================
 
-    # EXTRA CURRICULARS
-    for item in main.get("extra_curriculars", []):
-        make_chunk("extra_curricular", item.get("title",""),
-            f"Section: Extra Curricular\nTitle: {item.get('title','')}\nDescription: {item.get('description','')}")
+    for dashboard in data.get(
+        "dashboards",
+        []
+    ):
 
-    # CONTACT
-    contact = main.get("contact", {})
-    make_chunk("contact", "Contact Information",
-        f"Section: Contact\nName: {contact.get('name','')}\nLinks: {json.dumps(contact.get('links',{}))}")
+        add_chunk(
+            chunks,
+            "dashboard",
+            dashboard.get("title", ""),
+            f"""
+            Dashboard:
+            {dashboard.get('title', '')}
 
-    with open(CHUNK_FILE, "w", encoding="utf-8") as f:
-        json.dump(chunks, f, indent=2, ensure_ascii=False)
+            Stack:
+            {dashboard.get('stack', '')}
+
+            Description:
+            {dashboard.get('description', '')}
+
+            Overview:
+            {dashboard.get('overview', '')}
+            """,
+            dashboard
+        )
+
+    # =====================================================
+    # SAVE CHUNKS
+    # =====================================================
+
+    with open(
+        CHUNK_FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            chunks,
+            f,
+            indent=2,
+            ensure_ascii=False
+        )
+
+    return chunks
 
 
 # =========================================================
-# REBUILD INDEX
+# BUILD VECTOR STORE
 # =========================================================
 
-def rebuild_index():
-    """Re-chunk → re-embed → write new FAISS index and save content hash."""
+def rebuild_vector_store():
 
-    # Step 1: chunk
-    run_chunking()
+    st.info(
+        "New portfolio data detected. Rebuilding embeddings..."
+    )
 
-    # Step 2: embed
-    with open(CHUNK_FILE, "r", encoding="utf-8") as f:
-        chunks = json.load(f)
+    VECTOR_STORE_DIR.mkdir(
+        exist_ok=True
+    )
 
-    embed_model = SentenceTransformer(EMBED_MODEL)
+    chunks = build_chunks()
+
+    model = SentenceTransformer(
+        EMBED_MODEL
+    )
+
     texts = []
-    meta = []
+    metadata = []
 
     for chunk in chunks:
-        text = chunk.get("text", "")
-        title = chunk.get("title", "")
-        chunk_type = chunk.get("chunk_type", "")
-        chunk_metadata = chunk.get("metadata", {})
 
-        combined = f"""
-        Chunk Type: {chunk_type}
-        Title: {title}
-        Content: {text}
-        Metadata: {json.dumps(chunk_metadata)}
+        combined_text = f"""
+        {chunk['title']}
+
+        {chunk['text']}
         """
-        texts.append(combined)
-        meta.append({
-            "chunk_id": chunk.get("chunk_id"),
-            "title": title,
-            "chunk_type": chunk_type,
-            "text": text,
-            "metadata": chunk_metadata
-        })
 
-    embeddings = embed_model.encode(texts, convert_to_numpy=True)
-    faiss.normalize_L2(embeddings)
+        texts.append(
+            clean_text(combined_text)
+        )
+
+        metadata.append(chunk)
+
+    embeddings = model.encode(
+        texts,
+        convert_to_numpy=True,
+        show_progress_bar=True
+    )
+
+    embeddings = np.array(
+        embeddings,
+        dtype=np.float32
+    )
+
+    faiss.normalize_L2(
+        embeddings
+    )
 
     dimension = embeddings.shape[1]
-    new_index = faiss.IndexFlatIP(dimension)
-    new_index.add(embeddings)
 
-    VECTOR_STORE_DIR.mkdir(exist_ok=True)
-    faiss.write_index(new_index, str(FAISS_INDEX_PATH))
+    index = faiss.IndexFlatIP(
+        dimension
+    )
 
-    with open(METADATA_PATH, "w", encoding="utf-8") as f:
-        json.dump(meta, f, indent=2, ensure_ascii=False)
+    index.add(embeddings)
 
-    # Save content hash so we only rebuild when the data actually changes
-    HASH_FILE.write_text(get_file_hash(RAW_FILE))
+    faiss.write_index(
+        index,
+        str(FAISS_INDEX_PATH)
+    )
+
+    with open(
+        METADATA_PATH,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            metadata,
+            f,
+            indent=2,
+            ensure_ascii=False
+        )
+
+    HASH_FILE.write_text(
+        get_file_hash(RAW_FILE)
+    )
+
+    st.cache_resource.clear()
+
+    st.success(
+        f"Successfully built {len(chunks)} chunks."
+    )
 
 
 # =========================================================
-# AUTO REBUILD (runs before cache is populated)
+# AUTO REBUILD
 # =========================================================
 
-if RAW_FILE.exists() and needs_rebuild():
-    with st.spinner("🔄 Data updated — rebuilding vector index..."):
-        rebuild_index()
+if needs_rebuild():
+
+    rebuild_vector_store()
+
 
 
 # =========================================================
-# LOAD MODELS (cached after rebuild check)
+# LOAD MODELS
 # =========================================================
 
 @st.cache_resource
@@ -464,6 +759,7 @@ def load_models():
         metadata,
         client
     )
+
 
 (
     embed_model,
@@ -739,6 +1035,12 @@ def generate_answer(query):
     return response
 
 # =========================================================
+# TITLE
+# =========================================================
+
+
+
+# =========================================================
 # CHAT HISTORY
 # =========================================================
 
@@ -842,7 +1144,7 @@ if query:
                                 f"""
                                 <div class="assistant-row">
                                     <div class="assistant-bubble">
-                                        {full_response}▌
+                                         {make_links_clickable(full_response)}▌
                                     </div>
                                 </div>
                                 """,
