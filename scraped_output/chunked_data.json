@@ -95,7 +95,7 @@
     "chunk_id": "e8d0b594-05b1-4586-a167-c8256c1d2ea5",
     "chunk_type": "experience",
     "title": "Data Engineer — Pune, India at Datamorphosis",
-    "text": "Section: Work Experience Role: Data Engineer — Pune, India Company: Datamorphosis Date: January 2022 – July 2023 Description: At Datamorphosis, I worked as a Data Engineer building scalable data pipelines and analytics infrastructure. I developed PySpark ETL pipelines that ingested and transformed more than 500K records per processing cycle into AWS S3 and Snowflake, enabling efficient data storage and analysis. I orchestrated workflows using Apache Airflow, integrated AWS Glue transformations, and implemented Delta Lake for versioned data storage. Additionally, I supported experimentation workflows by modeling datasets in dbt and delivering insights through Tableau dashboards, while enforcing data governance with schema validation, RBAC policies, and CI/CD pipelines.",
+    "text": "Section: Work Experience Role: Data Engineer — Pune, India Company: Datamorphosis Date: January 2022 – July 2023 Description: At Datamorphosis, I worked as a Data Engineer building scalable AI-ready data pipelines and analytics infrastructure across multiple client engagements. I developed PySpark ETL pipelines that processed and transformed more than 500K records into AWS S3 and Snowflake, enabling production-grade datasets for machine learning training and business analytics workflows. I collaborated closely with clients to design ML-focused feature schemas in dbt, translating business requirements into reliable feature tables aligned with model and product objectives. To ensure high-quality data delivery, I implemented PySpark-based validation and quality checks, including schema enforcement, null handling, and freshness monitoring. Additionally, I optimized distributed Spark SQL transformations to consistently meet performance SLAs, reduce pipeline failures, and support fast-paced experimentation workflows in production environments.",
     "metadata": {
       "company": "Datamorphosis",
       "role": "Data Engineer — Pune, India",
@@ -105,7 +105,7 @@
   {
     "chunk_id": "0d6c9559-e472-44e9-a703-f3238e9328bb",
     "chunk_type": "experience",
-    "title": "Data Analyst and Team Lead Intern — Pune, India at Geniobits Private LTD",
+    "title": "Machine Learning Engineer and Team Lead Intern — Pune, India at Geniobits Private LTD",
     "text": "Section: Work Experience Role: Data Analyst and Team Lead Intern — Pune, India Company: Geniobits Private LTD Date: May 2021 – December 2021 Description: During my internship at Geniobits, I developed an end-to-end machine learning pipeline to identify at-risk students using academic performance data. The solution included data ingestion, preprocessing, feature engineering, model training, and evaluation, which reduced manual data preparation time by 60% and accelerated experimentation workflows across the team. I trained and optimized a PyTorch-based classification model using feature selection, cross-validation, and grid search hyperparameter tuning, achieving an F1 score of 0.82 in predicting student risk levels. To make the model accessible in production, I deployed it as a FastAPI service and built an interactive Streamlit dashboard that provided instructors with real-time risk predictions, SHAP-based model explainability, and prioritized intervention recommendations for individual students.",
     "metadata": {
       "company": "Geniobits Private LTD",
