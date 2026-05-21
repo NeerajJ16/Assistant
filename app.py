@@ -416,9 +416,6 @@ def rebuild_index():
     # Save content hash so we only rebuild when the data actually changes
     HASH_FILE.write_text(get_file_hash(RAW_FILE))
 
-    # Clear the cached models so the new index is loaded on next access
-    load_models.clear()
-
 
 # =========================================================
 # AUTO REBUILD (runs before cache is populated)
