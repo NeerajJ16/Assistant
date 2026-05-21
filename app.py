@@ -244,14 +244,9 @@ TOP_K_FINAL = 5
 # AUTO REBUILD
 # =========================================================
 
-import time
-import numpy as np
-
+RAW_FILE = Path("scraped_output/portfolio_scraped.json")
 CHUNK_FILE = Path("scraped_output/chunked_data.json")
 TIMESTAMP_FILE = Path("vector_store/last_built.txt")
-
-def get_chunk_modified_time():
-    return str(os.path.getmtime(CHUNK_FILE))
 
 def needs_rebuild():
     if not FAISS_INDEX_PATH.exists():
@@ -259,15 +254,100 @@ def needs_rebuild():
     if not TIMESTAMP_FILE.exists():
         return True
     last_built = TIMESTAMP_FILE.read_text().strip()
-    current = get_chunk_modified_time()
+    current = str(os.path.getmtime(RAW_FILE))
     return current != last_built
 
+def run_chunking():
+    with open(RAW_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    chunks = []
+
+    def clean_text(text):
+        if not text:
+            return ""
+        return " ".join(text.replace("\n", " ").split()).strip()
+
+    def make_chunk(chunk_type, title, text, metadata=None):
+        chunks.append({
+            "chunk_id": str(__import__("uuid").uuid4()),
+            "chunk_type": chunk_type,
+            "title": clean_text(title),
+            "text": clean_text(text),
+            "metadata": metadata or {}
+        })
+
+    main = data.get("main", {})
+
+    # HERO
+    hero = main.get("hero", {})
+    make_chunk("hero", "Hero Section",
+        f"Section: About / Hero\nName: {hero.get('name','')}\nTagline: {hero.get('tagline','')}\nBio: {hero.get('bio','')}",
+        {"section": "hero"})
+
+    # SKILLS
+    for skill in main.get("skills", []):
+        make_chunk("skill", skill.get("category",""),
+            f"Section: Skills\nCategory: {skill.get('category','')}\nTools: {skill.get('tools','')}",
+            {"category": skill.get("category","")})
+
+    # EXPERIENCE
+    for exp in main.get("resume", {}).get("experience", []):
+        make_chunk("experience", f"{exp.get('company','')} at {exp.get('role','')}",
+            f"Section: Work Experience\nRole: {exp.get('company','')}\nCompany: {exp.get('role','')}\nDate: {exp.get('date','')}\nDescription: {exp.get('description','')}",
+            {"company": exp.get("role",""), "role": exp.get("company",""), "date": exp.get("date","")})
+
+    # EDUCATION
+    for edu in main.get("resume", {}).get("education", []):
+        make_chunk("education", edu.get("role",""),
+            f"Section: Education\nDegree: {edu.get('role','')}\nInstitution: {edu.get('company','')}\nDate: {edu.get('date','')}",
+            {"institution": edu.get("company","")})
+
+    # CERTIFICATIONS
+    for cert in main.get("resume", {}).get("certifications", []):
+        make_chunk("certification", cert.get("text",""), cert.get("text",""))
+
+    # RESEARCH
+    for research in main.get("researches", []):
+        make_chunk("research", research.get("title",""),
+            f"Section: Research\nTitle: {research.get('title','')}\nDescription: {research.get('description','')}\nLinks: {json.dumps(research.get('links',{}))}",
+            {"links": research.get("links",{})})
+
+    # PROJECTS
+    for project in data.get("archives", {}).get("projects_table", []):
+        stack = ", ".join(project.get("stack", []))
+        make_chunk("project", project.get("name",""),
+            f"Section: Projects\nProject Name: {project.get('name','')}\nTech Stack: {stack}\nDescription: {project.get('description','')}\nLinks: {json.dumps(project.get('links',[]))}",
+            {"stack": project.get("stack",[]), "links": project.get("links",[])})
+
+    # DASHBOARDS
+    for dashboard in data.get("archives", {}).get("dashboards_table", []):
+        make_chunk("dashboard", dashboard.get("name",""),
+            f"Section: Dashboards\nDashboard Name: {dashboard.get('name','')}\nStack: {', '.join(dashboard.get('stack',[]))}\nDescription: {dashboard.get('description','')}",
+            {"stack": dashboard.get("stack",[])})
+
+    # EXTRA CURRICULARS
+    for item in main.get("extra_curriculars", []):
+        make_chunk("extra_curricular", item.get("title",""),
+            f"Section: Extra Curricular\nTitle: {item.get('title','')}\nDescription: {item.get('description','')}")
+
+    # CONTACT
+    contact = main.get("contact", {})
+    make_chunk("contact", "Contact Information",
+        f"Section: Contact\nName: {contact.get('name','')}\nLinks: {json.dumps(contact.get('links',{}))}")
+
+    with open(CHUNK_FILE, "w", encoding="utf-8") as f:
+        json.dump(chunks, f, indent=2, ensure_ascii=False)
+
 def rebuild_index():
+    # Step 1: chunk
+    run_chunking()
+
+    # Step 2: embed
     with open(CHUNK_FILE, "r", encoding="utf-8") as f:
         chunks = json.load(f)
 
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
+    model = load_embed_model()
     texts = []
     meta = []
 
@@ -283,7 +363,6 @@ def rebuild_index():
         Content: {text}
         Metadata: {json.dumps(chunk_metadata)}
         """
-
         texts.append(combined)
         meta.append({
             "chunk_id": chunk.get("chunk_id"),
@@ -306,15 +385,10 @@ def rebuild_index():
     with open(METADATA_PATH, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 
-    # Save modification time as timestamp
-    TIMESTAMP_FILE.write_text(get_chunk_modified_time())
+    # Save raw file's mod time as the marker
+    TIMESTAMP_FILE.write_text(str(os.path.getmtime(RAW_FILE)))
 
-    # CRITICAL: clear cache so load_models() reloads fresh index
-    st.cache_resource.clear()
-
-if needs_rebuild():
-    with st.spinner("New data detected. Rebuilding index..."):
-        rebuild_index()
+    load_index_and_metadata.clear()
 
 
 
