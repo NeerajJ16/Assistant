@@ -241,28 +241,28 @@ TOP_K_FINAL = 5
 
 
 # =========================================================
-# AUTO REBUILD INDEX IF DATA CHANGED
+# AUTO REBUILD
 # =========================================================
 
 import time
-import subprocess
+import numpy as np
 
 CHUNK_FILE = Path("scraped_output/chunked_data.json")
 TIMESTAMP_FILE = Path("vector_store/last_built.txt")
+
+def get_chunk_modified_time():
+    return str(os.path.getmtime(CHUNK_FILE))
 
 def needs_rebuild():
     if not FAISS_INDEX_PATH.exists():
         return True
     if not TIMESTAMP_FILE.exists():
         return True
-    last_built = float(TIMESTAMP_FILE.read_text())
-    last_modified = os.path.getmtime(CHUNK_FILE)
-    return last_modified > last_built
+    last_built = TIMESTAMP_FILE.read_text().strip()
+    current = get_chunk_modified_time()
+    return current != last_built
 
 def rebuild_index():
-    from sentence_transformers import SentenceTransformer
-    import numpy as np
-
     with open(CHUNK_FILE, "r", encoding="utf-8") as f:
         chunks = json.load(f)
 
@@ -306,11 +306,16 @@ def rebuild_index():
     with open(METADATA_PATH, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 
-    TIMESTAMP_FILE.write_text(str(time.time()))
+    # Save modification time as timestamp
+    TIMESTAMP_FILE.write_text(get_chunk_modified_time())
+
+    # CRITICAL: clear cache so load_models() reloads fresh index
+    st.cache_resource.clear()
 
 if needs_rebuild():
     with st.spinner("New data detected. Rebuilding index..."):
         rebuild_index()
+
 
 
 # =========================================================
