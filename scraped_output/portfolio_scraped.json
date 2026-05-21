@@ -1,562 +1,400 @@
 {
-  "source": "https://neerajj-portfolio.netlify.app",
-  "main": {
-    "hero": {
-      "name": "Neeraj J",
-      "bio": "I'm a data engineer, software developer, and tech enthusiast with a Master’s in Data Science from Florida State University, passionate about bridging the gap between raw data and actionable insights. With expertise in machine learning, web development, data analytics, Python, SQL, AWS, and AI-powered solutions, I thrive on solving complex problems and building scalable, impactful applications. Beyond tech, I express creativity through cooking, dance, poetry, and shayaris, believing that the best innovations come from blending analytical thinking with artistic intuition. I enjoy working on big data processing, cloud computing, and predictive modeling to drive intelligent decision-making. Let’s connect and create something extraordinary! 🚀",
-      "tagline": "AI Enthusiast",
-      "social_links": {
-        "http://www.linkedin.com/in/neeraj-mukesh-jawahirani-33a8363ab": "http://www.linkedin.com/in/neeraj-mukesh-jawahirani-33a8363ab",
-        "https://github.com/neerajJ16": "https://github.com/neerajJ16",
-        "https://neerajjawahirani.medium.com/": "https://neerajjawahirani.medium.com/",
-        "https://instagram.com/neeraj_jawahirani_": "https://instagram.com/neeraj_jawahirani_"
-      }
-    },
-    "skills": [
-      {
-        "icon": "💻",
-        "category": "Languages",
-        "tools": "C, C++, Java, Advanced Java, Python (NumPy, Pandas, Matplotlib, Plotly, Seaborn), R, PHP"
-      },
-      {
-        "icon": "🗄️",
-        "category": "Databases",
-        "tools": "SQL, PostgreSQL, SQLite, MongoDB, NoSQL, Amazon RDS, Hadoop, Snowflake"
-      },
-      {
-        "icon": "⚙️",
-        "category": "Data Engineering & Pipelines",
-        "tools": "Airflow, Spark, DBT, REST APIs, Docker, Data Validation, CI/CD, A/B Testing"
-      },
-      {
-        "icon": "📊",
-        "category": "Data Visualization & BI",
-        "tools": "Power BI, Tableau, Looker Studio, Matplotlib, Seaborn, Plotly"
-      },
-      {
-        "icon": "🤖",
-        "category": "Machine Learning & AI",
-        "tools": "Scikit-learn, XGBoost, TensorFlow, PyTorch, NLTK, OpenCV, LangChain, NLP, LLMs, Generative AI"
-      },
-      {
-        "icon": "☁️",
-        "category": "Tools & Cloud",
-        "tools": "AWS (S3, Redshift, RDS), Microsoft Azure, Docker, GitHub, Bitbucket, Excel"
-      },
-      {
-        "icon": "🔧",
-        "category": "Analytics & Experimentation",
-        "tools": "A/B Testing, Hypothesis Testing, Statistical Modeling, KPI Development & Tracking, Trend Analysis, User Behavior Analysis, Feature Analysis, Exploratory Data Analysis (EDA)"
-      },
-      {
-        "icon": "🐋",
-        "category": "Data Governance",
-        "tools": "Schema Management, Data Quality Validation, Data Lineage & Documentation, Role-Based Access Control (RBAC), Data Freshness Monitoring, Controlled Data Access"
-      }
+  "hero": {
+    "name": "Neeraj J",
+    "roles": [
+      "Data Engineer",
+      "AI Enthusiast",
+      "Tech Explorer",
+      "Storyteller",
+      "Personality Developer",
+      "Analytical Engineer"
     ],
-    "resume": {
-      "experience": [
-        {
-          "date": "September 2024 – Present",
-          "role": "Center for Ocean and Atmospheric Prediction Studies",
-          "company": "Information Assistant & Writer — Tallahassee, Florida",
-          "description": "At the Center for Ocean-Atmospheric Prediction Studies (COAPS) at Florida State University, I work as an Information Assistant and Data Analyst where I optimize data systems supporting oceanographic research. I redesigned vessel-position mapping workflows using SQL and Apache Spark, reducing query latency from several minutes to under 30 seconds. I also built automated ETL pipelines to process over 50,000 marine vessel records daily and supported multiple research web applications by containerizing services with Docker and improving data retrieval performance. My work helps scientists access reliable data and visualization tools for ongoing research.",
-          "links": {}
-        },
-        {
-          "date": "January 2022 – July 2023",
-          "role": "Datamorphosis",
-          "company": "Data Engineer — Pune, India",
-          "description": "At Datamorphosis, I worked as a Data Engineer building scalable data pipelines and analytics infrastructure. I developed PySpark ETL pipelines that ingested and transformed more than 500K records per processing cycle into AWS S3 and Snowflake, enabling efficient data storage and analysis. I orchestrated workflows using Apache Airflow, integrated AWS Glue transformations, and implemented Delta Lake for versioned data storage. Additionally, I supported experimentation workflows by modeling datasets in dbt and delivering insights through Tableau dashboards, while enforcing data governance with schema validation, RBAC policies, and CI/CD pipelines.",
-          "links": {}
-        },
-        {
-          "date": "May 2021 – December 2021",
-          "role": "Geniobits Private LTD",
-          "company": "Data Analyst and Team Lead Intern — Pune, India",
-          "description": "During my internship at Geniobits, I worked as a Data Analyst and Team Lead Intern focusing on educational analytics. I analyzed datasets of over 10,000 student records using PostgreSQL and exploratory data analysis techniques to identify students at risk academically. I developed Power BI dashboards with DAX to provide instructors with real-time insights into student performance and key academic KPIs. I also built a predictive model using PyTorch and statistical analysis in R that achieved an F1 score of 0.82, helping educators identify students who needed early academic intervention.",
-          "links": {}
-        }
-      ],
-      "education": [
-        {
-          "date": "August 2023 – May 2025",
-          "role": "Masters of Science in Data Science – Computer Science",
-          "company": "Florida State University, Tallahassee, FL, United States",
-          "description": "",
-          "links": {}
-        },
-        {
-          "date": "June 2018 – May 2022",
-          "role": "Bachelors of Engineering in Information Technology",
-          "company": "Savitribai Phule Pune University, Pune, MH, India",
-          "description": "",
-          "links": {}
-        }
-      ],
-      "certifications": [
-        {
-          "text": "Data Engineer – Data Integration by IBM-Techademy",
-          "link": ""
-        },
-        {
-          "text": "Software Development and Life Cycle by IBM-Techademy",
-          "link": ""
-        },
-        {
-          "text": "Cloud Computing with AWS",
-          "link": ""
-        },
-        {
-          "text": "Data Science: R Programming Complete Diploma 2023",
-          "link": ""
-        },
-        {
-          "text": "Web Penetration Testing",
-          "link": ""
-        },
-        {
-          "text": "Database Management with SQL",
-          "link": ""
-        }
-      ],
-      "leadership": [
-        {
-          "date": "2024 – Present",
-          "role": "Community Leader & Mentor",
-          "company": "FSU Data Science Community",
-          "description": "Led workshops, mentored peers, and organized data science events at Florida State University, fostering a community of learners and practitioners.",
-          "links": {}
-        }
-      ]
-    },
-    "researches": [
-      {
-        "title": "Florida State University – AI Researcher",
-        "description": "Worked with large language models, fine-tuning models like DistilGPT2 on datasets of 50,000+ examples using LoRA and PEFT, achieving 10–15% improvements in task accuracy. Built scalable NLP pipelines with Hugging Face and PyTorch, applying mixed-precision training and batch optimizations to reduce training time by 35%. Contributed to ParticleViz, an open-source tool that visualizes Lagrangian particle simulations through interactive web maps for Earth Science researchers.",
-        "links": {
-          "View ParticleViz": "https://olmozavala.github.io/particleviz/"
-        }
-      },
-      {
-        "title": "LearnScape AI – Founder and Developer",
-        "description": "Developed LearnScape AI, an intelligent learning platform that generates personalized study roadmaps, quizzes, and flashcards using Retrieval-Augmented Generation (RAG) and LLM-based evaluation pipelines. Built a scalable backend using FastAPI, dbt, and PostgreSQL for knowledge retrieval and progress tracking. Applied fine-tuned LLMs and semantic search to improve content generation, knowledge evaluation, and overall learning adaptability.",
-        "links": {
-          "Visit LearnScape AI": "https://learnscapeai.com/"
-        }
-      }
-    ],
-    "projects_homepage": [],
-    "extra_curriculars": [
-      {
-        "icon": "🎙️",
-        "title": "Host & Organizer at Gadget Gyaan",
-        "description": "Hosted and organized tech events educating audiences about gadgets and technology."
-      },
-      {
-        "icon": "🎤",
-        "title": "Speaker – Personality Development",
-        "description": "Delivered speeches on personal growth and confidence building for students."
-      },
-      {
-        "icon": "📚",
-        "title": "Teaching Assistant – Government School",
-        "description": "Volunteered as a teaching assistant, mentoring underprivileged students in STEM subjects."
-      }
-    ],
-    "contact": {
-      "name": "Neeraj J",
-      "role": "",
-      "links": {
-        "+1 (850) 300-3851": "tel:+1 (850) 300-3851",
-        "neerajjawahirani@gmail.com": "mailto:neerajjawahirani@gmail.com",
-        "jawahiranineeraj16@gmail.com": "mailto:jawahiranineeraj16@gmail.com"
-      }
-    },
-    "nav": {
-      "Home": "#home",
-      "Skills": "#features",
-      "Resume": "#resume",
-      "Researches": "#researches",
-      "Extra Curriculars": "#extrac",
-      "Contact": "#contacts"
-    }
+    "tagline": "I'm a data engineer, software developer, and tech enthusiast with a Master’s in Data Science from Florida State University, passionate about bridging the gap between raw data and actionable insights. With expertise in machine learning, web development, data analytics, Python, SQL, AWS, and AI-powered solutions, I thrive on solving complex problems and building scalable, impactful applications. Beyond tech, I express creativity through cooking, dance, poetry, and shayaris, believing that the best innovations come from blending analytical thinking with artistic intuition. I enjoy working on big data processing, cloud computing, and predictive modeling to drive intelligent decision-making. Let’s connect and create something extraordinary! 🚀",
+    "email": "neerajjawahirani@gmail.com",
+    "emailSecondary": "jawahiranineeraj16@gmail.com",
+    "phone": "+1 (850) 300-3851",
+    "linkedin": "http://www.linkedin.com/in/neeraj-mukesh-jawahirani-33a8363ab",
+    "github": "https://github.com/neerajJ16",
+    "medium": "https://neerajjawahirani.medium.com/",
+    "instagram": "https://instagram.com/neeraj_jawahirani_"
   },
-  "archives": {
-    "projects_table": [
-      {
-        "name": "LearnScape AI",
-        "stack": [
-          "FastAPI",
-          "Python",
-          "dbt",
-          "Postgres",
-          "RAG",
-          "LLM"
-        ],
-        "description": "Generates personalized learning paths with quizzes, flashcards, and mind-maps using RAG and analytics.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://learnscapeai.com/"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/LearnScapeAI"
-          }
-        ]
-      },
-      {
-        "name": "InterviewIQ-AI Powered Interview Stimulator",
-        "stack": [
-          "Python",
-          "LLM",
-          "Streamlit"
-        ],
-        "description": "AI-powered interview coach with memory-enabled context retention, simulating realistic interview sessions that evaluate responses, generate structured feedback, and produce a final performance score.",
-        "links": [
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Ai-Powered-Interview-Coach"
-          }
-        ]
-      },
-      {
-        "name": "ParticleViz",
-        "stack": [
-          "Python",
-          "NetCDF",
-          "OceanParcels",
-          "WebGL"
-        ],
-        "description": "Visualizes millions of ocean particles on interactive maps for Earth-science research with NetCDF loaders.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://ozavala.coaps.fsu.edu/particleviz/GlobalLitter/"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/particleviz"
-          }
-        ]
-      },
-      {
-        "name": "RAG Chatbot",
-        "stack": [
-          "FastAPI",
-          "SentenceTransformers",
-          "FAISS/Chroma"
-        ],
-        "description": "Retrieval-augmented chatbot with embeddings, reranking, and deterministic fallbacks for FAQs and contacts.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "/"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Rag-Chatbot-for-Portfolio"
-          }
-        ]
-      },
-      {
-        "name": "AI Powered Autoinsights CSV",
-        "stack": [
-          "Python",
-          "FastAPI",
-          "React",
-          "Pandas",
-          "scikit-learn",
-          "Ollama/Hugging Face (LLMs)"
-        ],
-        "description": "Automatic CSV preprocessing with one-click cleaning, feature engineering, and AI-suggested formulas & visuals.",
-        "links": [
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Auto-insights-csv"
-          }
-        ]
-      },
-      {
-        "name": "Data Driven Fitness Tracker",
-        "stack": [
-          "Python",
-          "Pandas",
-          "Matplotlib",
-          "SQLite"
-        ],
-        "description": "Tracks workouts, calories, and trends with personalized analytics and simple visual dashboards.",
-        "links": [
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Data-Driven-Fitness-Tracker-Predictive-Modeling"
-          }
-        ]
-      },
-      {
-        "name": "AI News Summarizer",
-        "stack": [
-          "Python",
-          "Streamlit",
-          "BART",
-          "LangChain"
-        ],
-        "description": "Ingests multi-source news, compares extractive vs generative summaries, highlights key entities and sentiment.",
-        "links": [
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/AI-Powered-News-Summarizer-TextRank-vs-BART-"
-          }
-        ]
-      },
-      {
-        "name": "Athlete Performance Regression Model",
-        "stack": [
-          "Python",
-          "Scikit-learn",
-          "Pandas",
-          "NumPy"
-        ],
-        "description": "Predicts athlete performance metrics using regression models and visualizes insights for training optimization.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://drive.google.com/file/d/1m-hcOyAeQyw06SXxwLBYjweu_kXuzHhV/view?usp=drive_link"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Athlete-Performance-Regression-Model"
-          }
-        ]
-      },
-      {
-        "name": "Ship Maps Data Tracker",
-        "stack": [
-          "PHP",
-          "SQL",
-          "Leaflet.js",
-          "Docker"
-        ],
-        "description": "Tracks marine vessel voyage data from 30+ ships and visualizes live positions on interactive maps.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://samos.coaps.fsu.edu/html/ship_tracker.php"
-          }
-        ]
-      },
-      {
-        "name": "Erdapp Flux Analyzer",
-        "stack": [
-          "Python",
-          "Streamlit",
-          "Pandas",
-          "Plotly"
-        ],
-        "description": "Interactive Streamlit app to analyze Erdapp flux datasets with filters and dynamic visualizations.(Use can use datasets avaialble at ERDAPP Samos Site)",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://neerajj16-flux-analyzer-app-gfajtt.streamlit.app/"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Flux-Analyzer"
-          }
-        ]
-      },
-      {
-        "name": "SAMOS Visualization Tool",
-        "stack": [
-          "Python",
-          "SQL",
-          "PHP",
-          "Dash",
-          "NetCDF",
-          "Highcharts"
-        ],
-        "description": "Provides interactive visualization of SAMOS shipboard atmospheric and oceanographic datasets.(May require FSU VPN/credentials for access)",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://samos.coaps.fsu.edu/charts/qc_search.php"
-          }
-        ]
-      },
-      {
-        "name": "SAMOS Legacy → Modern Website",
-        "stack": [
-          "PHP",
-          "MySQL",
-          "JavaScript",
-          "Bootstrap"
-        ],
-        "description": "Migrated outdated SAMOS portal to a modern, responsive, and high-performance website.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://samos.coaps.fsu.edu/"
-          }
-        ]
-      },
-      {
-        "name": "Distributed Storage System",
-        "stack": [
-          "IPFS",
-          "Django",
-          "REST APIs"
-        ],
-        "description": "Built a distributed file storage system leveraging IPFS for secure and decentralized data management.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://www.ijrar.org/papers/IJRAR1CNP041.pdf"
-          }
-        ]
-      },
-      {
-        "name": "Data Warehousing",
-        "stack": [
-          "dbt",
-          "Snowflake",
-          "SQL",
-          "Airflow"
-        ],
-        "description": "Designed star/snowflake schemas and automated ELT pipelines powering BI dashboards and analytics.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://medium.com/@neerajjawahirani/data-warehousing-for-beginners-full-project-using-free-apis-dbt-and-railway-c4101a7eef66"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Data-Warehousing-Basics"
-          }
-        ]
-      },
-      {
-        "name": "Data Containerization (ETL)",
-        "stack": [
-          "Docker",
-          "Python",
-          "Railway Postgres",
-          "CI/CD"
-        ],
-        "description": "Containerized ETL pipeline ingesting APIs, validating and transforming data, and publishing to Postgres.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "https://medium.com/@neerajjawahirani/from-confusion-to-containerization-a-beginners-guide-to-docker-with-a-real-etl-project-25ca40a3e176"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Dockerized-Pipelines-ETL"
-          }
-        ]
-      },
-      {
-        "name": "Python Voice Assistant",
-        "stack": [
-          "Python",
-          "SpeechRecognition",
-          "pyttsx3",
-          "APIs"
-        ],
-        "description": "Desktop voice assistant for answering queries, automating tasks, and API interactions via voice.",
-        "links": [
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Python-Voice-Assistant"
-          }
-        ]
-      },
-      {
-        "name": "Twitter Sentiment Analysis",
-        "stack": [
-          "Python",
-          "Tweepy",
-          "NLTK",
-          "TextBlob",
-          "Matplotlib"
-        ],
-        "description": "Collected tweets in real time, classified sentiment, and visualized social media trends.",
-        "links": [
-          {
-            "label": "Demo",
-            "href": "Inventory Management System"
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/twitter-analysis"
-          }
-        ]
-      },
-      {
-        "name": "Inventory Management System",
-        "stack": [
-          "Java (Swing",
-          "JDBC)",
-          "MySQL",
-          "NetBeans",
-          "Ant"
-        ],
-        "description": "Desktop application to manage products, sales, suppliers, employees, and invoices with MySQL backend.",
-        "links": [
-          {
-            "label": "GitHub",
-            "href": "https://github.com/NeerajJ16/Inventory-Management-Invoice-System-JAVA"
-          }
-        ]
-      }
-    ],
-    "dashboards_table": [
-      {
-        "name": "Sales Overview Dashboard",
-        "stack": [
-          "Power BI",
-          "DAX",
-          "Data Modeling"
-        ],
-        "description": "An interactive Power BI dashboard designed to analyze regional business performance across Sales, Profit, and Quantity metrics with dynamic Year-over-Year comparison and state-level insights.",
-        "links": [
-          {
-            "label": "View",
-            "href": "dashboards/dashboard.html?slug=sales"
-          }
-        ]
-      },
-      {
-        "name": "Pizza Sales Dashboard",
-        "stack": [
-          "Power BI · DAX · Time Intelligence"
-        ],
-        "description": "Interactive Power BI dashboard analyzing pizza sales performance.",
-        "links": [
-          {
-            "label": "View",
-            "href": "dashboards/dashboard.html?slug=pizzasales"
-          }
-        ]
-      }
-    ],
-    "dashboard_slug_pages": [
-      {
-        "url": "https://neerajj-portfolio.netlify.app/archives/dashboards/dashboard.html?slug=pizzasales",
-        "title": "Page not found",
-        "content": "Page not found Looks like you’ve followed a broken link or entered a URL that doesn’t exist on this site. If this is your site, and you weren’t expecting a 404 for this path, please visit Netlify’s “page not found” support guide for troubleshooting tips."
-      },
-      {
-        "url": "https://neerajj-portfolio.netlify.app/archives/dashboards/dashboard.html?slug=sales",
-        "title": "Page not found",
-        "content": "Page not found Looks like you’ve followed a broken link or entered a URL that doesn’t exist on this site. If this is your site, and you weren’t expecting a 404 for this path, please visit Netlify’s “page not found” support guide for troubleshooting tips."
-      }
-    ],
-    "medium_blog_link": "https://neerajjawahirani.medium.com/"
-  },
-  "medium_blogs": [
+  "skills": [
     {
-      "error": "Medium RSS failed: syntax error: line 1, column 0"
+      "icon": "💻",
+      "title": "Languages",
+      "items": "C, C++, Java, Advanced Java, Python (NumPy, Pandas, Matplotlib, Plotly, Seaborn), R, PHP"
+    },
+    {
+      "icon": "🗄️",
+      "title": "Databases",
+      "items": "SQL, PostgreSQL, SQLite, MongoDB, NoSQL, Amazon RDS, Hadoop, Snowflake"
+    },
+    {
+      "icon": "⚙️",
+      "title": "Data Engineering & Pipelines",
+      "items": "Airflow, Spark, DBT, REST APIs, Docker, Data Validation, CI/CD, A/B Testing"
+    },
+    {
+      "icon": "📊",
+      "title": "Data Visualization & BI",
+      "items": "Power BI, Tableau, Looker Studio, Matplotlib, Seaborn, Plotly"
+    },
+    {
+      "icon": "🤖",
+      "title": "Machine Learning & AI",
+      "items": "Scikit-learn, XGBoost, TensorFlow, PyTorch, NLTK, OpenCV, LangChain, NLP, LLMs, Generative AI"
+    },
+    {
+      "icon": "☁️",
+      "title": "Tools & Cloud",
+      "items": "AWS (S3, Redshift, RDS), Microsoft Azure, Docker, GitHub, Bitbucket, Excel"
+    },
+    {
+      "icon": "🔧",
+      "title": "Analytics & Experimentation",
+      "items": "A/B Testing, Hypothesis Testing, Statistical Modeling, KPI Development & Tracking, Trend Analysis, User Behavior Analysis, Feature Analysis, Exploratory Data Analysis (EDA)"
+    },
+    {
+      "icon": "🐋",
+      "title": "Data Governance",
+      "items": "Schema Management, Data Quality Validation, Data Lineage & Documentation, Role-Based Access Control (RBAC), Data Freshness Monitoring, Controlled Data Access"
     }
-  ]
+  ],
+  "education": [
+    {
+      "degree": "Masters of Science in Data Science – Computer Science",
+      "institution": "Florida State University",
+      "location": "Tallahassee, FL, United States",
+      "period": "August 2023 – May 2025",
+      "gpa": "3.9 CGPA",
+      "courses": "Data Mining, Machine Learning, Advance Data Science, Data Ethics, Cybersecurity in Data Science"
+    },
+    {
+      "degree": "Bachelors of Engineering in Information Technology",
+      "institution": "Savitribai Phule Pune University",
+      "location": "Pune, MH, India",
+      "period": "June 2018 – May 2022",
+      "gpa": "9.1 CGPA",
+      "courses": "Artificial Intelligence, Data Structures and Algorithms, Cloud Computing, Database Management System"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Information Assistant & Writer",
+      "location": "Tallahassee, Florida",
+      "role": "Center for Ocean and Atmospheric Prediction Studies",
+      "period": "September 2024 – Present",
+      "description": "At the Center for Ocean-Atmospheric Prediction Studies (COAPS) at Florida State University, I work as an Information Assistant and Data Analyst, developing scalable data and AI-driven systems that support oceanographic research workflows. I architected a production-grade RAG knowledge assistant using LangGraph and LangChain, integrating internal wikis, research databases, and unstructured documents into a vector search pipeline that enabled accurate natural language querying for over 50 researchers. I also engineered automated LLM-based reporting pipelines that transformed daily marine vessel records into structured summaries and trend reports, reducing manual reporting effort by 80%. In addition, I designed Python and SQL ETL pipelines processing more than 50,000 vessel records daily to power real-time dashboards and backend query systems with sub-second response times. I further modernized multiple production research websites by containerizing services with Docker, improving deployment consistency, accelerating data retrieval performance, and implementing LDAP-based access control for secure researcher access."
+    },
+    {
+      "company": "Data Engineer",
+      "location": "Pune, India",
+      "role": "Datamorphosis",
+      "period": "January 2022 – July 2023",
+      "description": "At Datamorphosis, I worked as a Data Engineer building scalable AI-ready data pipelines and analytics infrastructure across multiple client engagements. I developed PySpark ETL pipelines that processed and transformed more than 500K records into AWS S3 and Snowflake, enabling production-grade datasets for machine learning training and business analytics workflows. I collaborated closely with clients to design ML-focused feature schemas in dbt, translating business requirements into reliable feature tables aligned with model and product objectives. To ensure high-quality data delivery, I implemented PySpark-based validation and quality checks, including schema enforcement, null handling, and freshness monitoring. Additionally, I optimized distributed Spark SQL transformations to consistently meet performance SLAs, reduce pipeline failures, and support fast-paced experimentation workflows in production environments."
+    },
+    {
+      "company": "Machine Learning Engineer and Team Lead Intern",
+      "location": "Pune, India",
+      "role": "Geniobits Private LTD",
+      "period": "May 2021 – December 2021",
+      "description": "During my internship at Geniobits, I developed an end-to-end machine learning pipeline to identify at-risk students using academic performance data. The solution included data ingestion, preprocessing, feature engineering, model training, and evaluation, which reduced manual data preparation time by 60% and accelerated experimentation workflows across the team. I trained and optimized a PyTorch-based classification model using feature selection, cross-validation, and grid search hyperparameter tuning, achieving an F1 score of 0.82 in predicting student risk levels. To make the model accessible in production, I deployed it as a FastAPI service and built an interactive Streamlit dashboard that provided instructors with real-time risk predictions, SHAP-based model explainability, and prioritized intervention recommendations for individual students."
+    }
+  ],
+  "certifications": [
+    "Data Engineer – Data Integration by IBM-Techademy",
+    "Software Development and Life Cycle by IBM-Techademy",
+    "Cloud Computing with AWS",
+    "Data Science: R Programming Complete Diploma 2023",
+    "Web Penetration Testing",
+    "Database Management with SQL"
+  ],
+  "research": [
+    {
+      "title": "Florida State University – AI Researcher",
+      "description": "Worked with large language models, fine-tuning models like DistilGPT2 on datasets of 50,000+ examples using LoRA and PEFT, achieving 10–15% improvements in task accuracy. Built scalable NLP pipelines with Hugging Face and PyTorch, applying mixed-precision training and batch optimizations to reduce training time by 35%. Contributed to ParticleViz, an open-source tool that visualizes Lagrangian particle simulations through interactive web maps for Earth Science researchers.",
+      "link": "https://olmozavala.github.io/particleviz/",
+      "linkText": "View ParticleViz"
+    },
+    {
+      "title": "LearnScape AI – Founder and Developer",
+      "description": "Developed LearnScape AI, an intelligent learning platform that generates personalized study roadmaps, quizzes, and flashcards using Retrieval-Augmented Generation (RAG) and LLM-based evaluation pipelines. Built a scalable backend using FastAPI, dbt, and PostgreSQL for knowledge retrieval and progress tracking. Applied fine-tuned LLMs and semantic search to improve content generation, knowledge evaluation, and overall learning adaptability.",
+      "link": "https://learnscapeai.com/",
+      "linkText": "Visit LearnScape AI"
+    }
+  ],
+  "projects": [],
+  "extras": [
+    {
+      "icon": "🎙️",
+      "title": "Host & Organizer at Gadget Gyaan",
+      "description": "Hosted and organized tech events educating audiences about gadgets and technology."
+    },
+    {
+      "icon": "🎤",
+      "title": "Speaker – Personality Development",
+      "description": "Delivered speeches on personal growth and confidence building for students."
+    },
+    {
+      "icon": "📚",
+      "title": "Teaching Assistant – Government School",
+      "description": "Volunteered as a teaching assistant, mentoring underprivileged students in STEM subjects."
+    }
+  ],
+  "archiveProjects": [
+    {
+      "id": "p1773063333022",
+      "title": "LearnScape AI",
+      "year": "2026",
+      "category": "Software",
+      "stack": "FastAPI, Python, dbt, Postgres, RAG, LLM",
+      "description": "Generates personalized learning paths with quizzes, flashcards, and mind-maps using RAG and analytics.",
+      "demo": "https://learnscapeai.com/",
+      "github": "https://github.com/NeerajJ16/LearnScapeAI"
+    },
+    {
+      "id": "p1775760540753",
+      "title": "InterviewIQ-AI Powered Interview Stimulator",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, LLM, Streamlit",
+      "description": "AI-powered interview coach with memory-enabled context retention, simulating realistic interview sessions that evaluate responses, generate structured feedback, and produce a final performance score.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/Ai-Powered-Interview-Coach"
+    },
+    {
+      "id": "p1773063289871",
+      "title": "ParticleViz",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, NetCDF, OceanParcels, WebGL",
+      "description": "Visualizes millions of ocean particles on interactive maps for Earth-science research with NetCDF loaders.",
+      "demo": "https://ozavala.coaps.fsu.edu/particleviz/GlobalLitter/",
+      "github": "https://github.com/NeerajJ16/particleviz"
+    },
+    {
+      "id": "p1773063525246",
+      "title": "RAG Chatbot",
+      "year": "2026",
+      "category": "Software",
+      "stack": "FastAPI, SentenceTransformers, FAISS/Chroma",
+      "description": "Retrieval-augmented chatbot with embeddings, reranking, and deterministic fallbacks for FAQs and contacts.",
+      "demo": "https://neerajj-portfolio.netlify.app/chatbot",
+      "github": "https://github.com/NeerajJ16/Assistant"
+    },
+    {
+      "id": "p1773176377869",
+      "title": "AI Powered Autoinsights CSV",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, FastAPI, React, Pandas, scikit-learn, Ollama/Hugging Face (LLMs)",
+      "description": "Automatic CSV preprocessing with one-click cleaning, feature engineering, and AI-suggested formulas & visuals.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/Auto-insights-csv"
+    },
+    {
+      "id": "p1773176411431",
+      "title": "Data Driven Fitness Tracker",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, Pandas, Matplotlib, SQLite",
+      "description": "Tracks workouts, calories, and trends with personalized analytics and simple visual dashboards.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/Data-Driven-Fitness-Tracker-Predictive-Modeling"
+    },
+    {
+      "id": "p1773176443974",
+      "title": "AI News Summarizer",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, Streamlit, BART, LangChain",
+      "description": "Ingests multi-source news, compares extractive vs generative summaries, highlights key entities and sentiment.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/AI-Powered-News-Summarizer-TextRank-vs-BART-"
+    },
+    {
+      "id": "p1773176443831",
+      "title": "Athlete Performance Regression Model",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, Scikit-learn, Pandas, NumPy",
+      "description": "Predicts athlete performance metrics using regression models and visualizes insights for training optimization.",
+      "demo": "https://drive.google.com/file/d/1m-hcOyAeQyw06SXxwLBYjweu_kXuzHhV/view?usp=drive_link",
+      "github": "https://github.com/NeerajJ16/Athlete-Performance-Regression-Model"
+    },
+    {
+      "id": "p1773176443681",
+      "title": "Ship Maps Data Tracker",
+      "year": "2026",
+      "category": "Software",
+      "stack": "PHP, SQL, Leaflet.js, Docker",
+      "description": "Tracks marine vessel voyage data from 30+ ships and visualizes live positions on interactive maps.",
+      "demo": "https://samos.coaps.fsu.edu/html/ship_tracker.php",
+      "github": ""
+    },
+    {
+      "id": "p1773176443516",
+      "title": "Erdapp Flux Analyzer",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, Streamlit, Pandas, Plotly",
+      "description": "Interactive Streamlit app to analyze Erdapp flux datasets with filters and dynamic visualizations.(Use can use datasets avaialble at ERDAPP Samos Site)",
+      "demo": "https://neerajj16-flux-analyzer-app-gfajtt.streamlit.app/",
+      "github": "https://github.com/NeerajJ16/Flux-Analyzer"
+    },
+    {
+      "id": "p1773176441708",
+      "title": "SAMOS Visualization Tool",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, SQL, PHP, Dash, NetCDF, Highcharts",
+      "description": "Provides interactive visualization of SAMOS shipboard atmospheric and oceanographic datasets.(May require FSU VPN/credentials for access)",
+      "demo": "https://samos.coaps.fsu.edu/charts/qc_search.php",
+      "github": ""
+    },
+    {
+      "id": "p1773176716997",
+      "title": "SAMOS Legacy → Modern Website",
+      "year": "2026",
+      "category": "Software",
+      "stack": "PHP, MySQL, JavaScript, Bootstrap",
+      "description": "Migrated outdated SAMOS portal to a modern, responsive, and high-performance website.",
+      "demo": "https://samos.coaps.fsu.edu/",
+      "github": ""
+    },
+    {
+      "id": "p1773176719465",
+      "title": "Distributed Storage System",
+      "year": "2026",
+      "category": "Software",
+      "stack": "IPFS, Django, REST APIs",
+      "description": "Built a distributed file storage system leveraging IPFS for secure and decentralized data management.",
+      "demo": "https://www.ijrar.org/papers/IJRAR1CNP041.pdf",
+      "github": ""
+    },
+    {
+      "id": "p1773176719016",
+      "title": "Data Warehousing",
+      "year": "2026",
+      "category": "Software",
+      "stack": "dbt, Snowflake, SQL, Airflow",
+      "description": "Designed star/snowflake schemas and automated ELT pipelines powering BI dashboards and analytics.",
+      "demo": "https://medium.com/@neerajjawahirani/data-warehousing-for-beginners-full-project-using-free-apis-dbt-and-railway-c4101a7eef66",
+      "github": "https://github.com/NeerajJ16/Data-Warehousing-Basics"
+    },
+    {
+      "id": "p1773176718026",
+      "title": "Data Containerization (ETL)",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Docker, Python, Railway Postgres, CI/CD",
+      "description": "Containerized ETL pipeline ingesting APIs, validating and transforming data, and publishing to Postgres.",
+      "demo": "https://medium.com/@neerajjawahirani/from-confusion-to-containerization-a-beginners-guide-to-docker-with-a-real-etl-project-25ca40a3e176",
+      "github": "https://github.com/NeerajJ16/Dockerized-Pipelines-ETL"
+    },
+    {
+      "id": "p1773176816273",
+      "title": "Python Voice Assistant",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, SpeechRecognition, pyttsx3, APIs",
+      "description": "Desktop voice assistant for answering queries, automating tasks, and API interactions via voice.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/Python-Voice-Assistant"
+    },
+    {
+      "id": "p1773176815817",
+      "title": "Twitter Sentiment Analysis",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Python, Tweepy, NLTK, TextBlob, Matplotlib",
+      "description": "Collected tweets in real time, classified sentiment, and visualized social media trends.",
+      "demo": "Inventory Management System",
+      "github": "https://github.com/NeerajJ16/twitter-analysis"
+    },
+    {
+      "id": "p1773176814857",
+      "title": "Inventory Management System",
+      "year": "2026",
+      "category": "Software",
+      "stack": "Java (Swing, JDBC), MySQL, NetBeans, Ant",
+      "description": "Desktop application to manage products, sales, suppliers, employees, and invoices with MySQL backend.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/Inventory-Management-Invoice-System-JAVA"
+    }
+  ],
+  "dashboards": [
+    {
+      "id": "d1",
+      "title": "Sales Overview Dashboard",
+      "slug": "sales",
+      "stack": "Power BI, DAX, Data Modeling",
+      "description": "An interactive Power BI dashboard designed to analyze regional business performance across Sales, Profit, and Quantity metrics with dynamic Year-over-Year comparison and state-level insights.",
+      "overview": "This dashboard provides a comprehensive analysis of regional performance by comparing Current Year (CY) vs Previous Year (PY) metrics.\n\nIt enables business users to evaluate growth trends, profitability shifts, operational performance, and state-level contribution.",
+      "tools": "Power BI, DAX, Data Modeling, Time Intelligence",
+      "features": [
+        "Year-over-Year (YoY) comparison",
+        "Regional performance breakdown",
+        "Sales / Profit / Quantity toggle",
+        "State-level interactive map",
+        "KPI growth indicators",
+        "Monthly trend visualization"
+      ],
+      "images": [
+        "/images/dashboard/sales1.png",
+        "/images/dashboard/sales2.png",
+        "/images/dashboard/sales1.png"
+      ],
+      "insights": [
+        {
+          "title": "Revenue Growth",
+          "desc": "Identifies top-performing regions driving sales expansion."
+        },
+        {
+          "title": "Profitability Analysis",
+          "desc": "Highlights margin improvement and decline areas."
+        },
+        {
+          "title": "Volume Trends",
+          "desc": "Analyzes product demand through quantity growth patterns."
+        }
+      ],
+      "extraSections": []
+    },
+    {
+      "id": "d2",
+      "title": "Pizza Sales Dashboard",
+      "slug": "pizzasales",
+      "stack": "Power BI · DAX · Time Intelligence",
+      "description": "Interactive Power BI dashboard analyzing pizza sales performance.",
+      "overview": "Detailed insights into pizza sales with filters by category and custom date ranges.",
+      "tools": "Power BI • DAX • Data Modeling • Time Intelligence",
+      "features": [
+        "Pizza Category slicer",
+        "Dynamic date filtering",
+        "Revenue & Orders KPIs",
+        "Top 5 & Bottom 5 ranking"
+      ],
+      "images": [
+        "/images/dashboard/ps1.png",
+        "/images/dashboard/ps2.png"
+      ],
+      "insights": [
+        {
+          "title": "Sales Trends",
+          "desc": "Analyzes daily and monthly order patterns."
+        },
+        {
+          "title": "Category Performance",
+          "desc": "Identifies high-performing pizza categories."
+        },
+        {
+          "title": "Product Ranking",
+          "desc": "Highlights top and bottom performing pizzas by revenue, quantity, and orders."
+        }
+      ],
+      "extraSections": []
+    }
+  ],
+  "adminPassword": ""
 }
