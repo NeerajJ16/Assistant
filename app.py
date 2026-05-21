@@ -260,7 +260,52 @@ def needs_rebuild():
     return last_modified > last_built
 
 def rebuild_index():
-    subprocess.run(["python", "build_embeddings.py"], check=True)
+    from sentence_transformers import SentenceTransformer
+    import numpy as np
+
+    with open(CHUNK_FILE, "r", encoding="utf-8") as f:
+        chunks = json.load(f)
+
+    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+    texts = []
+    meta = []
+
+    for chunk in chunks:
+        text = chunk.get("text", "")
+        title = chunk.get("title", "")
+        chunk_type = chunk.get("chunk_type", "")
+        chunk_metadata = chunk.get("metadata", {})
+
+        combined = f"""
+        Chunk Type: {chunk_type}
+        Title: {title}
+        Content: {text}
+        Metadata: {json.dumps(chunk_metadata)}
+        """
+
+        texts.append(combined)
+        meta.append({
+            "chunk_id": chunk.get("chunk_id"),
+            "title": title,
+            "chunk_type": chunk_type,
+            "text": text,
+            "metadata": chunk_metadata
+        })
+
+    embeddings = model.encode(texts, convert_to_numpy=True)
+    faiss.normalize_L2(embeddings)
+
+    dimension = embeddings.shape[1]
+    new_index = faiss.IndexFlatIP(dimension)
+    new_index.add(embeddings)
+
+    VECTOR_STORE_DIR.mkdir(exist_ok=True)
+    faiss.write_index(new_index, str(FAISS_INDEX_PATH))
+
+    with open(METADATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2, ensure_ascii=False)
+
     TIMESTAMP_FILE.write_text(str(time.time()))
 
 if needs_rebuild():
