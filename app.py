@@ -239,6 +239,35 @@ TOP_K_RETRIEVE = 12
 
 TOP_K_FINAL = 5
 
+
+# =========================================================
+# AUTO REBUILD INDEX IF DATA CHANGED
+# =========================================================
+
+import time
+import subprocess
+
+CHUNK_FILE = Path("scraped_output/chunked_data.json")
+TIMESTAMP_FILE = Path("vector_store/last_built.txt")
+
+def needs_rebuild():
+    if not FAISS_INDEX_PATH.exists():
+        return True
+    if not TIMESTAMP_FILE.exists():
+        return True
+    last_built = float(TIMESTAMP_FILE.read_text())
+    last_modified = os.path.getmtime(CHUNK_FILE)
+    return last_modified > last_built
+
+def rebuild_index():
+    subprocess.run(["python", "build_embeddings.py"], check=True)
+    TIMESTAMP_FILE.write_text(str(time.time()))
+
+if needs_rebuild():
+    with st.spinner("New data detected. Rebuilding index..."):
+        rebuild_index()
+
+
 # =========================================================
 # LOAD MODELS
 # =========================================================
