@@ -1,6 +1,7 @@
 import os
 import json
 import faiss
+import hashlib
 import streamlit as st
 
 from pathlib import Path
@@ -229,6 +230,8 @@ FAISS_INDEX_PATH = VECTOR_STORE_DIR / "faiss_index.bin"
 
 METADATA_PATH = VECTOR_STORE_DIR / "metadata.json"
 
+HASH_FILE = VECTOR_STORE_DIR / "content_hash.txt"
+
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
@@ -239,23 +242,41 @@ TOP_K_RETRIEVE = 12
 
 TOP_K_FINAL = 5
 
-
 # =========================================================
-# AUTO REBUILD
+# FILE PATHS
 # =========================================================
 
 RAW_FILE = Path("scraped_output/portfolio_scraped.json")
 CHUNK_FILE = Path("scraped_output/chunked_data.json")
-TIMESTAMP_FILE = Path("vector_store/last_built.txt")
 
-def needs_rebuild():
+# =========================================================
+# CONTENT HASH
+# =========================================================
+
+def get_file_hash(filepath: Path) -> str:
+    """Compute MD5 hash of file contents."""
+    with open(filepath, "rb") as f:
+        return hashlib.md5(f.read()).hexdigest()
+
+
+def needs_rebuild() -> bool:
+    """Return True if the vector index is missing or the source data has changed."""
     if not FAISS_INDEX_PATH.exists():
         return True
-    if not TIMESTAMP_FILE.exists():
+    if not METADATA_PATH.exists():
         return True
-    last_built = TIMESTAMP_FILE.read_text().strip()
-    current = str(os.path.getmtime(RAW_FILE))
-    return current != last_built
+    if not HASH_FILE.exists():
+        return True
+    if not RAW_FILE.exists():
+        return False  # nothing to rebuild from
+    saved_hash = HASH_FILE.read_text().strip()
+    current_hash = get_file_hash(RAW_FILE)
+    return current_hash != saved_hash
+
+
+# =========================================================
+# CHUNKING
+# =========================================================
 
 def run_chunking():
     with open(RAW_FILE, "r", encoding="utf-8") as f:
@@ -339,7 +360,14 @@ def run_chunking():
     with open(CHUNK_FILE, "w", encoding="utf-8") as f:
         json.dump(chunks, f, indent=2, ensure_ascii=False)
 
+
+# =========================================================
+# REBUILD INDEX
+# =========================================================
+
 def rebuild_index():
+    """Re-chunk → re-embed → write new FAISS index and save content hash."""
+
     # Step 1: chunk
     run_chunking()
 
@@ -347,7 +375,7 @@ def rebuild_index():
     with open(CHUNK_FILE, "r", encoding="utf-8") as f:
         chunks = json.load(f)
 
-    model = load_embed_model()
+    embed_model = SentenceTransformer(EMBED_MODEL)
     texts = []
     meta = []
 
@@ -372,7 +400,7 @@ def rebuild_index():
             "metadata": chunk_metadata
         })
 
-    embeddings = model.encode(texts, convert_to_numpy=True)
+    embeddings = embed_model.encode(texts, convert_to_numpy=True)
     faiss.normalize_L2(embeddings)
 
     dimension = embeddings.shape[1]
@@ -385,15 +413,24 @@ def rebuild_index():
     with open(METADATA_PATH, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 
-    # Save raw file's mod time as the marker
-    TIMESTAMP_FILE.write_text(str(os.path.getmtime(RAW_FILE)))
+    # Save content hash so we only rebuild when the data actually changes
+    HASH_FILE.write_text(get_file_hash(RAW_FILE))
 
-    load_index_and_metadata.clear()
-
+    # Clear the cached models so the new index is loaded on next access
+    load_models.clear()
 
 
 # =========================================================
-# LOAD MODELS
+# AUTO REBUILD (runs before cache is populated)
+# =========================================================
+
+if RAW_FILE.exists() and needs_rebuild():
+    with st.spinner("🔄 Data updated — rebuilding vector index..."):
+        rebuild_index()
+
+
+# =========================================================
+# LOAD MODELS (cached after rebuild check)
 # =========================================================
 
 @st.cache_resource
@@ -703,12 +740,6 @@ def generate_answer(query):
     )
 
     return response
-
-# =========================================================
-# TITLE
-# =========================================================
-
-
 
 # =========================================================
 # CHAT HISTORY
