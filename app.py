@@ -1163,7 +1163,7 @@ if query:
             f"""
             <div class="assistant-row">
                 <div class="assistant-bubble">
-                    {full_response}
+                    {make_links_clickable(full_response)}
                 </div>
             </div>
             """,
@@ -1180,7 +1180,7 @@ if query:
             f"""
             <div class="assistant-row">
                 <div class="assistant-bubble">
-                    {full_response}
+                    {make_links_clickable(full_response)}
                 </div>
             </div>
             """,
