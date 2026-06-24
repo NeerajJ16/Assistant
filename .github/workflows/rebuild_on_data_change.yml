@@ -1,0 +1,44 @@
+name: Rebuild Embeddings on Data Change
+
+on:
+  push:
+    paths:
+      - 'scraped_output/portfolio_scraped.json'
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Chunk data
+        run: python chunking.py
+
+      - name: Build embeddings
+        run: python build_embeddings.py
+
+      - name: Commit updated vector store
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scraped_output/chunked_data.json vector_store/
+          git diff --cached --quiet && echo "Nothing to commit" || git commit -m "chore: auto-rebuild embeddings [skip ci]"
+          git push
