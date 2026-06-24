@@ -162,6 +162,16 @@
       "demo": "",
       "github": "https://github.com/NeerajJ16/Ai-Powered-Interview-Coach"
     },
+        {
+      "id": "p1780432920253",
+      "title": "Trip-Planner",
+      "year": "2026",
+      "category": "Software",
+      "stack": "LLM, Langgraph, Ollama, Python",
+      "description": "An intelligent travel planning assistant that combines LLM reasoning with real-world APIs to generate personalized itineraries.",
+      "demo": "",
+      "github": "https://github.com/NeerajJ16/AI-Trip-Planner/tree/main"
+    },
     {
       "id": "p1773063289871",
       "title": "ParticleViz",
