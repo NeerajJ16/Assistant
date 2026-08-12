@@ -2,14 +2,13 @@
   "hero": {
     "name": "Neeraj J",
     "roles": [
-      "Data Engineer",
       "AI Enthusiast",
-      "Tech Explorer",
+      "Analytical Engineer",
+      "Data Scientist",
       "Storyteller",
-      "Personality Developer",
-      "Analytical Engineer "
+      "Personality Developer"
     ],
-    "tagline": "I'm a data engineer, software developer, and tech enthusiast with a Master’s in Data Science from Florida State University, passionate about bridging the gap between raw data and actionable insights. With expertise in machine learning, web development, data analytics, Python, SQL, AWS, and AI-powered solutions, I thrive on solving complex problems and building scalable, impactful applications. Beyond tech, I express creativity through cooking, dance, poetry, and shayaris, believing that the best innovations come from blending analytical thinking with artistic intuition. I enjoy working on big data processing, cloud computing, and predictive modeling to drive intelligent decision-making. Let’s connect and create something extraordinary! 🚀",
+    "tagline": "I'm a Data Scientist, AI Engineer, and Data Analytics professional with a Master's degree in Data Science from Florida State University. I enjoy turning complex data into intelligent products, actionable insights, and scalable solutions that create real business impact. My experience spans machine learning, generative AI, data engineering, analytics, cloud technologies, and software development, with hands-on work in Python, SQL, Spark, AWS, LLMs, and modern AI frameworks. Whether it's building end-to-end RAG systems, developing machine learning models, designing data pipelines, or uncovering insights through experimentation and analytics, I enjoy taking ownership from idea to production. I'm passionate about solving challenging problems, continuously learning, and working with teams that value innovation, curiosity, and execution. Beyond technology, I enjoy cooking, dancing, writing poetry and songs, and exploring new ideas—because I believe creativity and analytical thinking together drive the best innovations.\nAlways curious. Always building. Always learning. 🚀",
     "email": "neerajjawahirani@gmail.com",
     "emailSecondary": "jawahiranineeraj16@gmail.com",
     "phone": "+1 (850) 300-3851",
@@ -84,7 +83,7 @@
       "location": "Tallahassee, Florida",
       "role": "Center for Ocean and Atmospheric Prediction Studies",
       "period": "September 2024 – Present",
-      "description": "At the Center for Ocean-Atmospheric Prediction Studies (COAPS) at Florida State University, I work as an Information Assistant and Data Analyst, developing scalable data and AI-driven systems that support oceanographic research workflows. I architected a production-grade RAG knowledge assistant using LangGraph and LangChain, integrating internal wikis, research databases, and unstructured documents into a vector search pipeline that enabled accurate natural language querying for over 50 researchers. I also engineered automated LLM-based reporting pipelines that transformed daily marine vessel records into structured summaries and trend reports, reducing manual reporting effort by 80%. In addition, I designed Python and SQL ETL pipelines processing more than 50,000 vessel records daily to power real-time dashboards and backend query systems with sub-second response times. I further modernized multiple production research websites by containerizing services with Docker, improving deployment consistency, accelerating data retrieval performance, and implementing LDAP-based access control for secure researcher access."
+      "description": "At the Center for Ocean-Atmospheric Prediction Studies (COAPS) at Florida State University, I work as an Information Assistant developing scalable data and AI-driven systems that support oceanographic research workflows. I architected a production-grade RAG knowledge assistant using LangGraph and LangChain, integrating internal wikis, research databases, and unstructured documents into a vector search pipeline that enabled accurate natural language querying for over 50 researchers. I also engineered automated LLM-based reporting pipelines that transformed daily marine vessel records into structured summaries and trend reports, reducing manual reporting effort by 80%. In addition, I designed Python and SQL ETL pipelines processing more than 50,000 vessel records daily to power real-time dashboards and backend query systems with sub-second response times. I further modernized multiple production research websites by containerizing services with Docker, improving deployment consistency, accelerating data retrieval performance, and implementing LDAP-based access control for secure researcher access."
     },
     {
       "company": "Data Engineer",
@@ -162,7 +161,7 @@
       "demo": "",
       "github": "https://github.com/NeerajJ16/Ai-Powered-Interview-Coach"
     },
-        {
+    {
       "id": "p1780432920253",
       "title": "Trip-Planner",
       "year": "2026",
