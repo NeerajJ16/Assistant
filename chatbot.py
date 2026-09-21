@@ -11,6 +11,7 @@ from sentence_transformers import (
 )
 
 from groq import Groq
+from calendly_booking import handle_calendly_booking
 
 # =========================================================
 # LOAD ENV
@@ -349,6 +350,15 @@ while True:
         break
 
     try:
+        is_booking, booking_response = handle_calendly_booking(query, chat_history, client)
+        if is_booking:
+            chat_history.append({"user": query, "assistant": booking_response})
+            print("\n===================================")
+            print("BOOKING ASSISTANT")
+            print("===================================\n")
+            print(booking_response)
+            continue
+
         # 1. Rewrite Query
         standalone_query = rewrite_query(query)
 

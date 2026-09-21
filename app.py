@@ -15,6 +15,8 @@ from groq import Groq
 
 import re
 
+from calendly_booking import handle_calendly_booking
+
 
 
 def make_links_clickable(text):
@@ -1112,63 +1114,79 @@ if query:
     full_response = ""
 
     try:
-
-        with st.spinner("Thinking..."):
-
-            completion = generate_answer(
-                query
-            )
-
-            token_buffer = ""
-
-            for chunk in completion:
-
-                try:
-
-                    delta = (
-                        chunk
-                        .choices[0]
-                        .delta
-                        .content
-                    )
-
-                    if delta:
-
-                        token_buffer += delta
-                        full_response += delta
-
-                        # BUFFERED RENDER
-                        if len(token_buffer) > 20:
-
-                            assistant_placeholder.markdown(
-                                f"""
-                                <div class="assistant-row">
-                                    <div class="assistant-bubble">
-                                         {make_links_clickable(full_response)}▌
-                                    </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-
-                            token_buffer = ""
-
-                except Exception:
-                    pass
-
-        full_response = full_response.strip()
-
-        # FINAL RENDER
-        assistant_placeholder.markdown(
-            f"""
-            <div class="assistant-row">
-                <div class="assistant-bubble">
-                    {make_links_clickable(full_response)}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
+        is_booking, booking_response = handle_calendly_booking(
+            query, st.session_state.get("chat_history", []), client
         )
+
+        if is_booking:
+            full_response = booking_response
+            assistant_placeholder.markdown(
+                f"""
+                <div class="assistant-row">
+                    <div class="assistant-bubble">
+                        {make_links_clickable(full_response)}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            with st.spinner("Thinking..."):
+
+                completion = generate_answer(
+                    query
+                )
+
+                token_buffer = ""
+
+                for chunk in completion:
+
+                    try:
+
+                        delta = (
+                            chunk
+                            .choices[0]
+                            .delta
+                            .content
+                        )
+
+                        if delta:
+
+                            token_buffer += delta
+                            full_response += delta
+
+                            # BUFFERED RENDER
+                            if len(token_buffer) > 20:
+
+                                assistant_placeholder.markdown(
+                                    f"""
+                                    <div class="assistant-row">
+                                        <div class="assistant-bubble">
+                                             {make_links_clickable(full_response)}▌
+                                        </div>
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
+
+                                token_buffer = ""
+
+                    except Exception:
+                        pass
+
+            full_response = full_response.strip()
+
+            # FINAL RENDER
+            assistant_placeholder.markdown(
+                f"""
+                <div class="assistant-row">
+                    <div class="assistant-bubble">
+                        {make_links_clickable(full_response)}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
     except Exception as e:
 
