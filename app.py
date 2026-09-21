@@ -245,6 +245,28 @@ button:focus {
     border-radius: 10px;
 }
 
+/* SUGGESTION BUBBLE BUTTONS */
+div[data-testid="stColumn"] button {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+    border-radius: 20px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+    width: 100% !important;
+}
+
+div[data-testid="stColumn"] button:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1043,39 +1065,86 @@ def generate_answer(query):
 
 
 # =========================================================
-# CHAT HISTORY
+# CHAT HISTORY INITIALIZATION
 # =========================================================
+
+if "chat_history" not in st.session_state or len(st.session_state.chat_history) == 0:
+    st.session_state.chat_history = [
+        {
+            "user": None,
+            "assistant": (
+                "Hello! 👋 I am Neeraj's AI Assistant and I am here to help you out.\n\n"
+                "I can help you **book meetings**, share Neeraj's **experiences**, **projects**, **skills**, and **contact information**, or answer any questions you have.\n\n"
+                "How can I assist you today?"
+            )
+        }
+    ]
+
+# =========================================================
+# CHAT HISTORY RENDER
+# =========================================================
+
+selected_prompt = None
 
 st.markdown(
     '<div class="chat-wrapper">',
     unsafe_allow_html=True
 )
 
-for chat in st.session_state.chat_history:
+for idx, chat in enumerate(st.session_state.chat_history):
 
     # USER MESSAGE
-    st.markdown(
-        f"""
-        <div class="user-row">
-            <div class="user-bubble">
-                {chat["user"]}
+    if chat.get("user"):
+        st.markdown(
+            f"""
+            <div class="user-row">
+                <div class="user-bubble">
+                    {chat["user"]}
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+            """,
+            unsafe_allow_html=True
+        )
 
     # ASSISTANT MESSAGE
-    st.markdown(
-        f"""
-        <div class="assistant-row">
-            <div class="assistant-bubble">
-                {chat["assistant"]}
+    if chat.get("assistant"):
+        st.markdown(
+            f"""
+            <div class="assistant-row">
+                <div class="assistant-bubble">
+                    {make_links_clickable(chat["assistant"])}
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+            """,
+            unsafe_allow_html=True
+        )
+
+    # ONE-TIME SUGGESTION BUTTONS BELOW INITIAL INTRO MESSAGE
+    if idx == 0 and len(st.session_state.chat_history) == 1:
+        st.markdown(
+            """
+            <div style="margin-top: 5px; margin-bottom: 20px;">
+                <p style="color: #9ca3af; font-size: 13px; font-weight: 600; margin-bottom: 10px;">💡 Select an option to get started:</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col1:
+            if st.button("📅 Book a Meeting", use_container_width=True, key="btn_book_intro"):
+                selected_prompt = "I want to book an appointment"
+        with col2:
+            if st.button("👤 About Neeraj", use_container_width=True, key="btn_about_intro"):
+                selected_prompt = "Tell me about yourself and your background"
+        with col3:
+            if st.button("💻 Key Projects", use_container_width=True, key="btn_projects_intro"):
+                selected_prompt = "What are Neeraj's top projects and technical achievements?"
+        with col4:
+            if st.button("💼 Work Experience", use_container_width=True, key="btn_exp_intro"):
+                selected_prompt = "What is Neeraj's work experience and role history?"
+        with col5:
+            if st.button("📬 Contact Info", use_container_width=True, key="btn_contact_intro"):
+                selected_prompt = "How can I contact Neeraj?"
 
 st.markdown(
     '</div>',
@@ -1086,9 +1155,11 @@ st.markdown(
 # INPUT
 # =========================================================
 
-query = st.chat_input(
+user_input = st.chat_input(
     "Ask me anything about Neeraj..."
 )
+
+query = selected_prompt or user_input
 
 # =========================================================
 # PROCESS QUERY
