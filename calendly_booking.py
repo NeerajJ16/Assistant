@@ -32,21 +32,26 @@ class CalendlyBookingHandler:
         Determines whether the query or context relates to booking an appointment.
         """
         keywords = [
-            "book", "appointment", "schedule", "meeting", "meet", "call", 
-            "slot", "calendly", "reservation", "consultation", "session"
+            r"\bbook\b", r"\bbooking\b", r"\bappointment\b", r"\bschedule\b", 
+            r"\bscheduling\b", r"\bmeeting\b", r"\bmeet\b", r"\bcall\b", 
+            r"\bslot\b", r"\bcalendly\b", r"\breservation\b", r"\bconsultation\b", r"\bsession\b"
         ]
         query_lower = query.lower()
         
-        # Direct keyword match
-        if any(kw in query_lower for kw in keywords):
+        # Direct keyword match with word boundaries
+        if any(re.search(kw, query_lower) for kw in keywords):
             return True
             
-        # Check if previous assistant message was asking for date/time
+        # Check if previous assistant message was specifically prompting for date/time
         if history and len(history) > 0:
             last_turn = history[-1]
             if isinstance(last_turn, dict):
                 last_assistant_msg = (last_turn.get("assistant") or "").lower()
-                if "date" in last_assistant_msg or "time" in last_assistant_msg or "appointment" in last_assistant_msg or "schedule" in last_assistant_msg:
+                booking_prompt_indicators = [
+                    "preferred date", "specify your preferred", "schedule an appointment",
+                    "what date would you like", "what time works best"
+                ]
+                if any(ind in last_assistant_msg for ind in booking_prompt_indicators):
                     # Check if current user input contains date/time responses
                     if self._has_date_or_time_indicators(query_lower):
                         return True
@@ -59,16 +64,16 @@ class CalendlyBookingHandler:
         """
         date_time_words = [
             "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", 
-            "friday", "saturday", "sunday", "am", "pm", "clock", "morning", 
+            "friday", "saturday", "sunday", "morning", 
             "afternoon", "evening", "night", "january", "february", "march", 
             "april", "may", "june", "july", "august", "september", "septemeber", "october", 
             "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", 
-            "aug", "sep", "oct", "nov", "dec", "next week", "this week"
+            "aug", "sep", "sept", "oct", "nov", "dec", "next week", "this week"
         ]
-        if any(w in text for w in date_time_words):
+        if any(re.search(r'\b' + re.escape(w) + r'\b', text) for w in date_time_words):
             return True
-        # Check for numbers like 3pm, 10:30, 2026-09-25, 25th
-        if re.search(r'\d{1,2}(:\d{2})?\s*(am|pm)?', text) or re.search(r'\d{1,2}(st|nd|rd|th)', text):
+        # Check for explicit time patterns (3pm, 10:30am, 10:30) or date patterns (2026-09-25, 25th, 12/25)
+        if re.search(r'\b\d{1,2}(:\d{2})\s*(am|pm)?\b', text) or re.search(r'\b\d{1,2}\s*(am|pm)\b', text) or re.search(r'\b\d{1,2}(st|nd|rd|th)\b', text) or re.search(r'\b\d{1,2}/\d{1,2}\b', text) or re.search(r'\b\d{4}-\d{2}-\d{2}\b', text):
             return True
         return False
 
@@ -185,11 +190,12 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
             display_date = now.strftime("%A, %b %d, %Y")
         else:
             # Try parsing with dateutil
+            months_regex = r'(january|february|march|april|may|june|july|august|september|septemeber|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)'
             date_patterns = [
-                r'\b(january|february|march|april|may|june|july|august|september|septemeber|october|november|december)\s+\d{1,2}(st|nd|rd|th)?(,\s*\d{4})?\b',
-                r'\b\d{1,2}(st|nd|rd|th)?\s+(of\s+)?(january|february|march|april|may|june|july|august|september|septemeber|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(,\s*\d{4})?\b',
+                r'\b' + months_regex + r'\s+\d{1,2}(st|nd|rd|th)?(,\s*\d{4})?\b',
+                r'\b\d{1,2}(st|nd|rd|th)?\s+(of\s+)?' + months_regex + r'(,\s*\d{4})?\b',
                 r'\b\d{4}-\d{2}-\d{2}\b',
-                r'\b\d{1,2}/\d{1,2}/\d{2,4}\b'
+                r'\b\d{1,2}/\d{1,2}(/\d{2,4})?\b'
             ]
             for pattern in date_patterns:
                 match = re.search(pattern, text_lower)
