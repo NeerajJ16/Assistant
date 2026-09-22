@@ -267,21 +267,21 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
         # Case 1: Neither date nor time provided
         if not has_date and not has_time:
             return True, (
-                "I'd be happy to help you schedule an appointment! 📅\n\n"
+                "I'd be happy to help you schedule an appointment.\n\n"
                 "Please specify your preferred **date** and **time** (for example: *'Tomorrow at 10:30 AM'* or *'Sept 23 at 3:00 PM'*)."
             )
 
         # Case 2: Date provided, but time missing
         if has_date and not has_time:
             return True, (
-                f"Got it! You'd like to book on **{display_date}**. 🕒\n\n"
+                f"Got it! You'd like to book on **{display_date}**.\n\n"
                 "What **time** works best for you? (e.g., *'10:30 AM'* or *'2:30 PM'*)"
             )
 
         # Case 3: Time provided, but date missing
         if not has_date and has_time:
             return True, (
-                f"Got it! You'd like a slot at **{display_time}**. 📅\n\n"
+                f"Got it! You'd like a slot at **{display_time}**.\n\n"
                 "What **date** would you like to schedule this for? (e.g., *'Tomorrow'* or *'Sept 23'*)"
             )
 
@@ -289,13 +289,13 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
         direct_url, standard_url = self.generate_calendly_links(iso_date, iso_time)
 
         response_msg = (
-            f"🎉 **Great! Your appointment details are set.**\n\n"
-            f"- 📅 **Date:** {display_date}\n"
-            f"- 🕒 **Time:** {display_time}\n\n"
-            f"👉 **[Click here to confirm this pre-selected slot on Calendly]({direct_url})**\n\n"
+            f"**Great! Your appointment details are set.**\n\n"
+            f"- **Date:** {display_date}\n"
+            f"- **Time:** {display_time}\n\n"
+            f"**[Click here to confirm this pre-selected slot on Calendly]({direct_url})**\n\n"
             f"--- \n\n"
-            f"🗓️ *Prefer to choose a different time or schedule on your own?*\n"
-            f"🔗 **[Open Standard Calendly Calendar]({standard_url})**"
+            f"*Prefer to choose a different time or schedule on your own?*\n"
+            f"**[Open Standard Calendly Calendar]({standard_url})**"
         )
 
         return True, response_msg

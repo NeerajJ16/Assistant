@@ -20,39 +20,38 @@ from calendly_booking import handle_calendly_booking
 
 
 def make_links_clickable(text):
+    if not text:
+        return ""
 
-    url_pattern = r'((?:https?://|www\.)[^\s<]+[^<.,:;"\')\]\s])'
-
-    def replace_link(match):
-
-        url = match.group(0)
-
-        href = url
-
-        # add https if missing
-        if url.startswith("www."):
-
-            href = "https://" + url
-
-        return f'''
-        <a
-            href="{href}"
-            target="_blank"
-            style="
-                color:#60a5fa;
-                text-decoration:none;
-                font-weight:500;
-            "
-        >
-            {url}
-        </a>
-        '''
-
-    return re.sub(
-        url_pattern,
-        replace_link,
-        text
+    combined_pattern = re.compile(
+        r'(\[[^\]]+\]\([^)]+\))'
+        r'|(<[^>]+>)'
+        r'|(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b)'
+        r'|(\bhttps?://[^\s<)]+)'
+        r'|(\bwww\.[^\s<)]+)'
+        r'|(\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|io|ai|app|edu|gov|co|me|dev)(?:/[^\s<)]*)?)'
     )
+
+    def replace_match(m):
+        if m.group(1):
+            return m.group(1)
+        if m.group(2):
+            return m.group(2)
+        if m.group(3):
+            email = m.group(3).rstrip(".,:;!?)")
+            trailing = m.group(3)[len(email):]
+            return f'<a href="mailto:{email}" style="color:#60a5fa; text-decoration:underline; font-weight:500;">{email}</a>' + trailing
+
+        url_match = m.group(4) or m.group(5) or m.group(6)
+        if url_match:
+            clean_url = url_match.rstrip(".,:;!?)")
+            trailing = url_match[len(clean_url):]
+            href = clean_url if (clean_url.startswith("http://") or clean_url.startswith("https://")) else "https://" + clean_url
+            return f'<a href="{href}" target="_blank" style="color:#60a5fa; text-decoration:underline; font-weight:500;">{clean_url}</a>' + trailing
+
+        return m.group(0)
+
+    return combined_pattern.sub(replace_match, text)
 
 # =========================================================
 # PAGE CONFIG
@@ -60,7 +59,6 @@ def make_links_clickable(text):
 
 st.set_page_config(
     page_title="Neeraj Portfolio Assistant",
-    page_icon="🤖",
     layout="wide"
 )
 
@@ -70,201 +68,212 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 html, body, [data-testid="stAppViewContainer"] {
-    background-color: #0f172a;
+    background-color: #0b0f19;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* HIDE STREAMLIT SIDEBAR */
+[data-testid="stSidebar"], [data-testid="stSidebarNav"] {
+    display: none !important;
 }
 
 /* MAIN CONTAINER */
-.main {
-    padding-top: 1rem;
+.main .block-container {
+    max-width: 900px;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
 }
+
+
 
 /* CHAT WRAPPER */
 .chat-wrapper {
-    max-width: 1200px;
     margin: auto;
-    padding-bottom: 120px;
+    padding-bottom: 100px;
 }
 
-/* TITLE */
-.chat-title {
-    text-align: center;
-    font-size: 42px;
-    font-weight: 800;
-    color: white;
-    margin-bottom: 40px;
-}
-
-/* ROWS */
+/* CHAT ROWS */
 .user-row {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
 }
 
 .assistant-row {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
 }
 
 /* USER BUBBLE */
 .user-bubble {
-    background: linear-gradient(
-        135deg,
-        #2563eb,
-        #1d4ed8
-    );
-
-    color: white;
-
-    padding: 16px 20px;
-
-    border-radius: 20px;
-
+    background: #2563eb;
+    color: #ffffff;
+    padding: 11px 16px;
+    border-radius: 16px 16px 4px 16px;
     max-width: 72%;
-
-    font-size: 16px;
-
-    line-height: 1.7;
-
-    box-shadow:
-        0 4px 14px rgba(0,0,0,0.25);
-
+    font-size: 14px;
+    line-height: 1.5;
     word-wrap: break-word;
 }
 
 /* ASSISTANT BUBBLE */
 .assistant-bubble {
-    background: white;
-
-    color: #111827;
-
-    padding: 16px 20px;
-
-    border-radius: 20px;
-
+    background: #1e293b;
+    color: #f1f5f9;
+    border: 1px solid #334155;
+    padding: 13px 18px;
+    border-radius: 16px 16px 16px 4px;
     max-width: 72%;
-
-    font-size: 16px;
-
-    line-height: 1.8;
-
-    box-shadow:
-        0 4px 14px rgba(0,0,0,0.12);
-
+    font-size: 14px;
+    line-height: 1.6;
     word-wrap: break-word;
 }
 
-/* INPUT CONTAINER */
-.stChatInputContainer {
-
-    background: transparent !important;
-
-    border: none !important;
-
-    padding-bottom: 20px;
+.assistant-bubble strong {
+    color: #60a5fa;
 }
 
-/* INPUT BOX */
-[data-testid="stChatInput"] {
-
-    max-width: 1200px;
-
-    margin: auto;
-
-    background: #111827 !important;
-
-    border: 1px solid #374151 !important;
-
-    border-radius: 14px !important;
-
-    padding: 8px 12px !important;
+/* SUGGESTION BUBBLE CONTAINERS & BUTTONS */
+div[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 4px !important;
+    margin-bottom: 8px !important;
+    margin-left: 0 !important;
 }
 
-/* TEXTAREA */
-[data-testid="stChatInput"] textarea {
-
-    background: transparent !important;
-
-    color: white !important;
-
-    border: none !important;
-
-    font-size: 15px !important;
-
-    min-height: 22px !important;
-
-    padding-top: 8px !important;
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    padding: 0 !important;
 }
 
-/* PLACEHOLDER */
-[data-testid="stChatInput"] textarea::placeholder {
-
-    color: #9ca3af !important;
-}
-
-/* REMOVE OUTLINE */
-textarea:focus,
-button:focus {
-
-    outline: none !important;
-
-    box-shadow: none !important;
-}
-
-/* SEND BUTTON */
-[data-testid="stChatInputSubmitButton"] {
-
-    background: #2563eb !important;
-
-    border: none !important;
-
-    border-radius: 10px !important;
-
-    width: 36px !important;
-
-    height: 36px !important;
-}
-
-/* SEND ICON */
-[data-testid="stChatInputSubmitButton"] svg {
-
-    color: white !important;
-}
-
-
-/* SCROLLBAR */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #475569;
-    border-radius: 10px;
-}
-
-/* SUGGESTION BUBBLE BUTTONS */
 div[data-testid="stColumn"] button {
     background: #1e293b !important;
-    color: #f8fafc !important;
+    color: #f1f5f9 !important;
     border: 1px solid #334155 !important;
-    border-radius: 20px !important;
-    padding: 6px 12px !important;
-    font-size: 13px !important;
+    border-radius: 14px !important;
+    padding: 5px 12px !important;
+    font-size: 12px !important;
     font-weight: 500 !important;
     white-space: nowrap !important;
     transition: all 0.2s ease !important;
-    width: 100% !important;
+    width: auto !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    line-height: 1 !important;
 }
 
 div[data-testid="stColumn"] button:hover {
     background: #2563eb !important;
     color: #ffffff !important;
     border-color: #60a5fa !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
-    transform: translateY(-2px) !important;
+}
+
+/* INPUT CONTAINER */
+.stChatInputContainer {
+    background: transparent !important;
+    border: none !important;
+    padding-bottom: 10px;
+}
+
+/* INPUT BOX */
+[data-testid="stChatInput"] {
+    max-width: 900px;
+    margin: auto;
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 14px !important;
+    padding: 6px 12px !important;
+}
+
+[data-testid="stChatInput"]:focus-within {
+    border-color: #3b82f6 !important;
+}
+
+/* TEXTAREA */
+[data-testid="stChatInput"] textarea {
+    background: transparent !important;
+    color: #f8fafc !important;
+    border: none !important;
+    font-size: 14px !important;
+    min-height: 22px !important;
+}
+
+/* PLACEHOLDER */
+[data-testid="stChatInput"] textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+/* REMOVE OUTLINE */
+textarea:focus, button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* SEND BUTTON */
+[data-testid="stChatInputSubmitButton"] {
+    background: #2563eb !important;
+    border: none !important;
+    border-radius: 10px !important;
+    width: 34px !important;
+    height: 34px !important;
+}
+
+[data-testid="stChatInputSubmitButton"]:hover {
+    background: #1d4ed8 !important;
+}
+
+[data-testid="stChatInputSubmitButton"] svg {
+    color: white !important;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+/* MOBILE RESPONSIVE OPTIMIZATION */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        padding-top: 1rem !important;
+    }
+    div[data-testid="stHorizontalBlock"] {
+        max-width: 100% !important;
+        margin-left: 0 !important;
+    }
+    .user-bubble, .assistant-bubble {
+        max-width: 90% !important;
+        font-size: 13.5px !important;
+        padding: 10px 14px !important;
+    }
+    div[data-testid="stColumn"] button {
+        white-space: normal !important;
+        font-size: 11px !important;
+        padding: 4px 8px !important;
+        min-height: 26px !important;
+    }
 }
 
 </style>
@@ -1059,12 +1068,6 @@ def generate_answer(query):
     return response
 
 # =========================================================
-# TITLE
-# =========================================================
-
-
-
-# =========================================================
 # CHAT HISTORY INITIALIZATION
 # =========================================================
 
@@ -1073,12 +1076,13 @@ if "chat_history" not in st.session_state or len(st.session_state.chat_history) 
         {
             "user": None,
             "assistant": (
-                "Hello! 👋 I am Neeraj's AI Assistant and I am here to help you out.\n\n"
+                "Hello! I am Neeraj's AI Assistant and I am here to help you out.\n\n"
                 "I can help you **book meetings**, share Neeraj's **experiences**, **projects**, **skills**, and **contact information**, or answer any questions you have.\n\n"
                 "How can I assist you today?"
             )
         }
     ]
+
 
 # =========================================================
 # CHAT HISTORY RENDER
@@ -1121,29 +1125,23 @@ for idx, chat in enumerate(st.session_state.chat_history):
 
     # ONE-TIME SUGGESTION BUTTONS BELOW INITIAL INTRO MESSAGE
     if idx == 0 and len(st.session_state.chat_history) == 1:
-        st.markdown(
-            """
-            <div style="margin-top: 5px; margin-bottom: 20px;">
-                <p style="color: #9ca3af; font-size: 13px; font-weight: 600; margin-bottom: 10px;">💡 Select an option to get started:</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+
+        # Single row of 5 option pills
         col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
-            if st.button("📅 Book a Meeting", use_container_width=True, key="btn_book_intro"):
+            if st.button("Book a Meeting", key="btn_book_intro"):
                 selected_prompt = "I want to book an appointment"
         with col2:
-            if st.button("👤 About Neeraj", use_container_width=True, key="btn_about_intro"):
+            if st.button("About Neeraj", key="btn_about_intro"):
                 selected_prompt = "Tell me about yourself and your background"
         with col3:
-            if st.button("💻 Key Projects", use_container_width=True, key="btn_projects_intro"):
+            if st.button("Key Projects", key="btn_projects_intro"):
                 selected_prompt = "What are Neeraj's top projects and technical achievements?"
         with col4:
-            if st.button("💼 Work Experience", use_container_width=True, key="btn_exp_intro"):
+            if st.button("Work Experience", key="btn_exp_intro"):
                 selected_prompt = "What is Neeraj's work experience and role history?"
         with col5:
-            if st.button("📬 Contact Info", use_container_width=True, key="btn_contact_intro"):
+            if st.button("Contact Info", key="btn_contact_intro"):
                 selected_prompt = "How can I contact Neeraj?"
 
 st.markdown(
