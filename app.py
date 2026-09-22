@@ -873,8 +873,9 @@ def rewrite_query(query):
         return query
 
     history_text = "\n".join([
-        f"User: {c['user']}\nAssistant: {c['assistant']}"
+        f"User: {c.get('user') or ''}\nAssistant: {c.get('assistant') or ''}"
         for c in st.session_state.chat_history[-3:]
+        if isinstance(c, dict) and (c.get('user') or c.get('assistant'))
     ])
 
     try:

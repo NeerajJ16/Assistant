@@ -156,7 +156,11 @@ def rewrite_query(query):
     if not chat_history:
         return query
     
-    history_text = "\n".join([f"User: {c['user']}\nAssistant: {c['assistant']}" for c in chat_history[-3:]])
+    history_text = "\n".join([
+        f"User: {c.get('user') or ''}\nAssistant: {c.get('assistant') or ''}"
+        for c in chat_history[-3:]
+        if isinstance(c, dict) and (c.get('user') or c.get('assistant'))
+    ])
     
     response = client.chat.completions.create(
         model=LLM_MODEL,

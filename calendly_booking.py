@@ -44,11 +44,12 @@ class CalendlyBookingHandler:
         # Check if previous assistant message was asking for date/time
         if history and len(history) > 0:
             last_turn = history[-1]
-            last_assistant_msg = last_turn.get("assistant", "").lower()
-            if "date" in last_assistant_msg or "time" in last_assistant_msg or "appointment" in last_assistant_msg or "schedule" in last_assistant_msg:
-                # Check if current user input contains date/time responses
-                if self._has_date_or_time_indicators(query_lower):
-                    return True
+            if isinstance(last_turn, dict):
+                last_assistant_msg = (last_turn.get("assistant") or "").lower()
+                if "date" in last_assistant_msg or "time" in last_assistant_msg or "appointment" in last_assistant_msg or "schedule" in last_assistant_msg:
+                    # Check if current user input contains date/time responses
+                    if self._has_date_or_time_indicators(query_lower):
+                        return True
                     
         return False
 
@@ -60,7 +61,7 @@ class CalendlyBookingHandler:
             "today", "tomorrow", "monday", "tuesday", "wednesday", "thursday", 
             "friday", "saturday", "sunday", "am", "pm", "clock", "morning", 
             "afternoon", "evening", "night", "january", "february", "march", 
-            "april", "may", "june", "july", "august", "september", "october", 
+            "april", "may", "june", "july", "august", "september", "septemeber", "october", 
             "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", 
             "aug", "sep", "oct", "nov", "dec", "next week", "this week"
         ]
@@ -92,7 +93,10 @@ class CalendlyBookingHandler:
             try:
                 history_str = ""
                 if history:
-                    history_str = "\n".join([f"User: {h.get('user', '')}\nAssistant: {h.get('assistant', '')}" for h in history[-3:]])
+                    history_str = "\n".join([
+                        f"User: {h.get('user') or ''}\nAssistant: {h.get('assistant') or ''}"
+                        for h in history[-3:] if isinstance(h, dict) and (h.get('user') or h.get('assistant'))
+                    ])
 
                 extraction_prompt = f"""
 You are an entity extractor for an appointment booking assistant.
@@ -159,8 +163,9 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
         now = now or datetime.now()
         full_text = query
         if history and len(history) > 0:
-            past_turns = [h.get("user", "") for h in history[-2:]]
-            full_text = f"{' '.join(past_turns)} {query}"
+            past_turns = [h.get("user") for h in history[-2:] if isinstance(h, dict) and h.get("user")]
+            if past_turns:
+                full_text = f"{' '.join(past_turns)} {query}"
 
         text_lower = full_text.lower()
 
@@ -181,8 +186,8 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
         else:
             # Try parsing with dateutil
             date_patterns = [
-                r'\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(st|nd|rd|th)?(,\s*\d{4})?\b',
-                r'\b\d{1,2}(st|nd|rd|th)?\s+(of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(,\s*\d{4})?\b',
+                r'\b(january|february|march|april|may|june|july|august|september|septemeber|october|november|december)\s+\d{1,2}(st|nd|rd|th)?(,\s*\d{4})?\b',
+                r'\b\d{1,2}(st|nd|rd|th)?\s+(of\s+)?(january|february|march|april|may|june|july|august|september|septemeber|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(,\s*\d{4})?\b',
                 r'\b\d{4}-\d{2}-\d{2}\b',
                 r'\b\d{1,2}/\d{1,2}/\d{2,4}\b'
             ]
@@ -191,6 +196,7 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
                 if match:
                     try:
                         clean_match = re.sub(r'(st|nd|rd|th)', '', match.group(0))
+                        clean_match = clean_match.replace("septemeber", "september")
                         parsed_dt = date_parser.parse(clean_match, default=now)
                         has_date = True
                         iso_date = parsed_dt.strftime("%Y-%m-%d")
