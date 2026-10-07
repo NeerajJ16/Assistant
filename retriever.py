@@ -112,7 +112,7 @@ def search(query):
 
     for idx in indices[0]:
 
-        if idx == -1:
+        if idx == -1 or idx < 0 or idx >= len(metadata):
             continue
 
         retrieved_chunks.append(

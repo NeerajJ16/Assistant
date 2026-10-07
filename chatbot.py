@@ -136,6 +136,9 @@ STRICT RULES:
 CONTEXT:
 {context}
 
+RECENT CHAT HISTORY (Last 3 messages):
+{history}
+
 QUESTION:
 {question}
 
@@ -152,15 +155,40 @@ chat_history = []
 # HELPER FUNCTIONS
 # =========================================================
 
+def format_chat_history(history, max_turns=3):
+    """
+    Formats the last `max_turns` messages/exchanges from chat history into a clean string.
+    """
+    if not history:
+        return "None"
+
+    formatted_turns = []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        user_msg = item.get("user")
+        assistant_msg = item.get("assistant")
+
+        parts = []
+        if user_msg:
+            parts.append(f"User: {user_msg.strip()}")
+        if assistant_msg:
+            parts.append(f"Assistant: {assistant_msg.strip()}")
+
+        if parts:
+            formatted_turns.append("\n".join(parts))
+
+    recent_turns = formatted_turns[-max_turns:]
+    return "\n\n".join(recent_turns) if recent_turns else "None"
+
+
 def rewrite_query(query):
     if not chat_history:
         return query
     
-    history_text = "\n".join([
-        f"User: {c.get('user') or ''}\nAssistant: {c.get('assistant') or ''}"
-        for c in chat_history[-3:]
-        if isinstance(c, dict) and (c.get('user') or c.get('assistant'))
-    ])
+    history_text = format_chat_history(chat_history, max_turns=3)
+    if history_text == "None":
+        return query
     
     response = client.chat.completions.create(
         model=LLM_MODEL,
@@ -204,7 +232,7 @@ def retrieve_context(query):
 
     for idx in indices[0]:
 
-        if idx == -1:
+        if idx == -1 or idx < 0 or idx >= len(metadata):
             continue
 
         retrieved_chunks.append(
@@ -291,10 +319,12 @@ CONTENT:
 def generate_answer(query):
 
     # -----------------------------------------------------
-    # RETRIEVE
+    # REWRITE QUERY & RETRIEVE CONTEXT
     # -----------------------------------------------------
 
-    results = retrieve_context(query)
+    standalone_query = rewrite_query(query)
+
+    results = retrieve_context(standalone_query)
 
     # -----------------------------------------------------
     # BUILD CONTEXT
@@ -303,11 +333,18 @@ def generate_answer(query):
     context = build_context(results)
 
     # -----------------------------------------------------
+    # FORMAT HISTORY
+    # -----------------------------------------------------
+
+    history_text = format_chat_history(chat_history, max_turns=3)
+
+    # -----------------------------------------------------
     # FINAL PROMPT
     # -----------------------------------------------------
 
     final_prompt = PROMPT_TEMPLATE.format(
         context=context,
+        history=history_text,
         question=query
     )
 
@@ -341,67 +378,66 @@ def generate_answer(query):
 # CLI CHAT LOOP
 # =========================================================
 
-print("\n===================================")
-print("PORTFOLIO RAG CHATBOT READY")
-print("Type 'exit' to quit")
-print("===================================")
+if __name__ == "__main__":
 
-while True:
+    print("\n===================================")
+    print("PORTFOLIO RAG CHATBOT READY")
+    print("Type 'exit' to quit")
+    print("===================================")
 
-    query = input("\nAsk Interview Question: ")
+    while True:
 
-    if query.lower() in ["exit", "quit"]:
-        break
+        query = input("\nAsk Interview Question: ")
 
-    try:
-        is_booking, booking_response = handle_calendly_booking(query, chat_history, client)
-        if is_booking:
-            chat_history.append({"user": query, "assistant": booking_response})
+        if query.lower() in ["exit", "quit"]:
+            break
+
+        try:
+            is_booking, booking_response = handle_calendly_booking(query, chat_history, client)
+            if is_booking:
+                chat_history.append({"user": query, "assistant": booking_response})
+                print("\n===================================")
+                print("BOOKING ASSISTANT")
+                print("===================================\n")
+                print(booking_response)
+                continue
+
+            # 1. Generate Answer
+            answer, retrieved = generate_answer(query)
+
+            # 2. Save History
+            chat_history.append({"user": query, "assistant": answer})
+
             print("\n===================================")
-            print("BOOKING ASSISTANT")
+            print("ANSWER")
             print("===================================\n")
-            print(booking_response)
-            continue
 
-        # 1. Rewrite Query
-        standalone_query = rewrite_query(query)
+            print(answer)
 
-        # 2. Generate Answer
-        answer, retrieved = generate_answer(standalone_query)
+            print("\n===================================")
+            print("RETRIEVED CONTEXT")
+            print("===================================")
 
-        # 3. Save History
-        chat_history.append({"user": query, "assistant": answer})
+            for i, item in enumerate(
+                retrieved,
+                start=1
+            ):
 
-        print("\n===================================")
-        print("ANSWER")
-        print("===================================\n")
+                print(f"\n[{i}]")
 
-        print(answer)
+                print(
+                    f"Title: {item['title']}"
+                )
 
-        print("\n===================================")
-        print("RETRIEVED CONTEXT")
-        print("===================================")
+                print(
+                    f"Type: {item['chunk_type']}"
+                )
 
-        for i, item in enumerate(
-            retrieved,
-            start=1
-        ):
+                print(
+                    f"Score: {item['score']:.4f}"
+                )
 
-            print(f"\n[{i}]")
+        except Exception as e:
 
-            print(
-                f"Title: {item['title']}"
-            )
-
-            print(
-                f"Type: {item['chunk_type']}"
-            )
-
-            print(
-                f"Score: {item['score']:.4f}"
-            )
-
-    except Exception as e:
-
-        print("\nERROR:")
-        print(e)
+            print("\nERROR:")
+            print(e)

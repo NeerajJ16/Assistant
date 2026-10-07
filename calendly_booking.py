@@ -15,6 +15,17 @@ CALENDLY_API_TOKEN = os.getenv("CALENDLY_API_TOKEN", "")
 TIMEZONE_OFFSET = os.getenv("CALENDLY_TIMEZONE_OFFSET", "-04:00")
 
 
+def clean_year_typos(text: str) -> str:
+    """
+    Cleans common year typos like '2-26' -> '2026'.
+    """
+    if not text:
+        return ""
+    text = re.sub(r'(\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?[a-z]+)\s+2-26\b', r'\1 2026', text, flags=re.IGNORECASE)
+    text = re.sub(r'\b2-26\b', '2026', text)
+    return text
+
+
 class CalendlyBookingHandler:
     """
     Handles appointment booking flow via Calendly integration.
@@ -42,17 +53,25 @@ class CalendlyBookingHandler:
         if any(re.search(kw, query_lower) for kw in keywords):
             return True
             
-        # Check if previous assistant message was specifically prompting for date/time
+        # Check if previous assistant or user message was specifically part of a booking flow
         if history and len(history) > 0:
-            last_turn = history[-1]
-            if isinstance(last_turn, dict):
-                last_assistant_msg = (last_turn.get("assistant") or "").lower()
-                booking_prompt_indicators = [
-                    "preferred date", "specify your preferred", "schedule an appointment",
-                    "what date would you like", "what time works best"
-                ]
-                if any(ind in last_assistant_msg for ind in booking_prompt_indicators):
-                    # Check if current user input contains date/time responses
+            booking_prompt_indicators = [
+                "preferred date", "specify your preferred", "schedule an appointment",
+                "what date", "what time", "works best for you", "pre-selected slot",
+                "calendly", "book an appointment", "appointment details"
+            ]
+            
+            for turn in reversed(history[-3:]):
+                if not isinstance(turn, dict):
+                    continue
+                assistant_msg = turn.get("assistant") or ""
+                clean_assistant_msg = re.sub(r'[*_`#]', '', assistant_msg).lower()
+                if any(ind in clean_assistant_msg for ind in booking_prompt_indicators):
+                    if self._has_date_or_time_indicators(query_lower):
+                        return True
+
+                user_msg = (turn.get("user") or "").lower()
+                if any(re.search(kw, user_msg) for kw in keywords):
                     if self._has_date_or_time_indicators(query_lower):
                         return True
                     
@@ -73,33 +92,25 @@ class CalendlyBookingHandler:
         if any(re.search(r'\b' + re.escape(w) + r'\b', text) for w in date_time_words):
             return True
         # Check for explicit time patterns (3pm, 10:30am, 10:30) or date patterns (2026-09-25, 25th, 12/25)
-        if re.search(r'\b\d{1,2}(:\d{2})\s*(am|pm)?\b', text) or re.search(r'\b\d{1,2}\s*(am|pm)\b', text) or re.search(r'\b\d{1,2}(st|nd|rd|th)\b', text) or re.search(r'\b\d{1,2}/\d{1,2}\b', text) or re.search(r'\b\d{4}-\d{2}-\d{2}\b', text):
+        if re.search(r'\b\d{1,2}(:\d{2})?\s*(am|pm)\b', text) or re.search(r'\b\d{1,2}:\d{2}\b', text) or re.search(r'\b\d{1,2}(st|nd|rd|th)\b', text) or re.search(r'\b\d{1,2}/\d{1,2}\b', text) or re.search(r'\b\d{4}-\d{2}-\d{2}\b', text):
             return True
         return False
 
     def extract_datetime_details(self, query: str, history: Optional[list] = None, llm_client: Any = None) -> Dict[str, Any]:
         """
         Extracts date and time information from query and context, resolving to normalized ISO format.
-        Returns a dict:
-        {
-            "has_date": bool,
-            "has_time": bool,
-            "display_date": str,
-            "display_time": str,
-            "iso_date": str,  # YYYY-MM-DD
-            "iso_time": str   # HH:MM:SS
-        }
         """
         now = datetime.now()
         current_date_str = now.strftime("%Y-%m-%d")
         current_day_str = now.strftime("%A")
+        query_cleaned = clean_year_typos(query)
 
         if llm_client:
             try:
                 history_str = ""
                 if history:
                     history_str = "\n".join([
-                        f"User: {h.get('user') or ''}\nAssistant: {h.get('assistant') or ''}"
+                        f"User: {clean_year_typos(h.get('user') or '')}\nAssistant: {h.get('assistant') or ''}"
                         for h in history[-3:] if isinstance(h, dict) and (h.get('user') or h.get('assistant'))
                     ])
 
@@ -110,6 +121,8 @@ Current Timezone Offset: {self.tz_offset}
 
 Analyze the conversation history and user query to check if a DATE and TIME for an appointment are mentioned.
 If relative dates (e.g. "tomorrow", "next Wednesday", "Friday", "Sept 23") or times (e.g. "10:30 AM", "3 PM", "15:00") are mentioned, resolve them strictly relative to Current Reference Date: {current_date_str}.
+Important: Common typos in year expressions like "2-26", "202-6", "26" should be resolved to year 2026 (for example: "27th november 2-26" -> 2026-11-27).
+Combine date and time details mentioned across HISTORY and USER QUERY.
 
 Respond strictly with a JSON object in this format (no markdown, no extra text):
 {{
@@ -125,7 +138,7 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
                     model="openai/gpt-oss-120b",
                     messages=[
                         {"role": "system", "content": "You output JSON only."},
-                        {"role": "user", "content": f"HISTORY:\n{history_str}\n\nUSER QUERY:\n{query}\n\n{extraction_prompt}"}
+                        {"role": "user", "content": f"HISTORY:\n{history_str}\n\nUSER QUERY:\n{query_cleaned}\n\n{extraction_prompt}"}
                     ],
                     temperature=0.0,
                     max_tokens=250
@@ -159,18 +172,18 @@ Respond strictly with a JSON object in this format (no markdown, no extra text):
                 pass
 
         # Rule-based fallback extraction
-        return self._rule_based_extract(query, history, now)
+        return self._rule_based_extract(query_cleaned, history, now)
 
     def _rule_based_extract(self, query: str, history: Optional[list] = None, now: Optional[datetime] = None) -> Dict[str, Any]:
         """
         Rule-based fallback for date and time parsing.
         """
         now = now or datetime.now()
-        full_text = query
+        full_text = clean_year_typos(query)
         if history and len(history) > 0:
-            past_turns = [h.get("user") for h in history[-2:] if isinstance(h, dict) and h.get("user")]
+            past_turns = [clean_year_typos(h.get("user") or "") for h in history[-2:] if isinstance(h, dict) and h.get("user")]
             if past_turns:
-                full_text = f"{' '.join(past_turns)} {query}"
+                full_text = f"{' '.join(past_turns)} {full_text}"
 
         text_lower = full_text.lower()
 

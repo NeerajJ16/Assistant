@@ -331,7 +331,7 @@ CHUNK_FILE = Path(
 VECTOR_STORE_DIR = Path("vector_store")
 
 FAISS_INDEX_PATH = (
-    VECTOR_STORE_DIR / "faiss.index"
+    VECTOR_STORE_DIR / "faiss_index.bin"
 )
 
 METADATA_PATH = (
@@ -803,11 +803,38 @@ def load_models():
 ) = load_models()
 
 # =========================================================
-# SESSION STATE
+# HELPER FUNCTIONS & SESSION STATE
 # =========================================================
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+
+
+def format_chat_history(history, max_turns=3):
+    """
+    Formats the last `max_turns` messages/exchanges from chat history into a clean string.
+    """
+    if not history:
+        return "None"
+
+    formatted_turns = []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        user_msg = item.get("user")
+        assistant_msg = item.get("assistant")
+
+        parts = []
+        if user_msg:
+            parts.append(f"User: {user_msg.strip()}")
+        if assistant_msg:
+            parts.append(f"Assistant: {assistant_msg.strip()}")
+
+        if parts:
+            formatted_turns.append("\n".join(parts))
+
+    recent_turns = formatted_turns[-max_turns:]
+    return "\n\n".join(recent_turns) if recent_turns else "None"
 
 # =========================================================
 # REWRITE PROMPT
@@ -857,6 +884,9 @@ STRICT RULES:
 CONTEXT:
 {context}
 
+RECENT CHAT HISTORY (Last 3 messages):
+{history}
+
 QUESTION:
 {question}
 
@@ -872,11 +902,13 @@ def rewrite_query(query):
     if not st.session_state.chat_history:
         return query
 
-    history_text = "\n".join([
-        f"User: {c.get('user') or ''}\nAssistant: {c.get('assistant') or ''}"
-        for c in st.session_state.chat_history[-3:]
-        if isinstance(c, dict) and (c.get('user') or c.get('assistant'))
-    ])
+    history_text = format_chat_history(
+        st.session_state.chat_history,
+        max_turns=3
+    )
+
+    if history_text == "None":
+        return query
 
     try:
 
@@ -933,7 +965,7 @@ def retrieve_context(query):
 
     for idx in indices[0]:
 
-        if idx == -1:
+        if idx == -1 or idx < 0 or idx >= len(metadata):
             continue
 
         chunk = metadata[idx]
@@ -1042,8 +1074,14 @@ def generate_answer(query):
         retrieved
     )
 
+    history_text = format_chat_history(
+        st.session_state.get("chat_history", []),
+        max_turns=3
+    )
+
     final_prompt = PROMPT_TEMPLATE.format(
         context=context,
+        history=history_text,
         question=query
     )
 
